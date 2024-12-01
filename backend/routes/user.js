@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { User } = require("../db/index.js");
+const { User, Test } = require("../db/index.js");
 const jwt = require("jsonwebtoken");
 const z = require("zod");
-const { JWT_SECRET } = require("../config.js");
-const { use } = require("bcrypt/promises.js");
+const bcrypt = require("bcrypt");
+const { JWT_SECRET, saltRounds } = require("../config.js");
 const userMiddleWare = require("../middlewares/user.js");
 
 const userSignupSchema = z.object({
-  username: z.string().length(10, "USN should be exactly 10 characters long"),
+  username: z.string(),
+  usn: z.string().length(10, "USN should be exactly 10 characters long"),
   password: z
     .string()
     .min(8, "Enter DOB in the format DDMMYYYY")
@@ -19,41 +20,36 @@ const userSignupSchema = z.object({
 });
 
 const userSignInSchema = z.object({
-  username: z.string().min(10, "Username is required"),
+  usn: z.string().min(10, "Username is required"),
   password: z
     .string()
     .min(8, "Enter DOB in the format DDMMYYYY")
     .max(8, "Enter DOB in the format DDMMYYYY"),
 });
 
-router.get("/tests", userMiddleWare, (req, res) => {
-  res.send("Access granted");
-});
-
 //Sign Up route
 router.post("/signup", async (req, res) => {
   try {
-    const { username, password, batch, year, branch } = userSignupSchema.parse(
-      req.body
-    );
+    const { username, usn, password, batch, year, branch } =
+      userSignupSchema.parse(req.body);
 
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ msg: "User already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const newUser = new User({
-      username,
-      password,
-      batch,
+      username: username.toLowerCase(),
+      password: hashedPassword,
+      usn: usn.toLowerCase(),
+      batch: batch.toLowerCase(),
       year,
-      branch,
+      branch: branch.toLowerCase(),
     });
     await newUser.save();
-    const payload = {
-      userId: newUser._id,
-      role: "user",
-    };
-    const token = jwt.sign(payload, JWT_SECRET);
+
+    const userId = newUser._id;
+    const token = jwt.sign({ userId }, JWT_SECRET);
     res
       .status(200)
       .json({ message: "User created successfully", token: token });
@@ -62,26 +58,24 @@ router.post("/signup", async (req, res) => {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.errors });
     }
-    res.status(500).json({ msg: "Internal server error", err });
+    res.status(500).json({ message: "Internal server error", err });
   }
 });
 
 //Sign In route
 router.post("/signin", async (req, res) => {
   try {
-    const { username, password } = userSignInSchema.parse(req.body);
-    const user = await User.findOne({ username });
+    const { usn, password } = userSignInSchema.parse(req.body);
+    const user = await User.findOne({ usn: usn.toLowerCase() });
     if (!user) {
       return res.status(400).json({ message: "Incorrect username" });
     }
-    if (password != user.password) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(400).json({ message: "Incorrect password" });
     }
-    const payload = {
-      userId: user._id,
-      role: "user",
-    };
-    const token = jwt.sign(payload, JWT_SECRET);
+    const userId = user._id;
+    const token = jwt.sign({ userId }, JWT_SECRET);
 
     res.status(200).json({ token: token });
   } catch (err) {
@@ -89,7 +83,7 @@ router.post("/signin", async (req, res) => {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.errors });
     }
-    res.status(500).json({ msg: "Internal server error", err });
+    res.status(500).json({ message: "Internal server error", err });
   }
 });
 
