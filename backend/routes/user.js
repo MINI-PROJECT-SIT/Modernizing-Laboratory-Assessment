@@ -6,14 +6,12 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const { JWT_SECRET, saltRounds } = require("../config.js");
 const userMiddleWare = require("../middlewares/user.js");
+const test = require("./test.js");
 
 const userSignupSchema = z.object({
   username: z.string(),
   usn: z.string().length(10, "USN should be exactly 10 characters long"),
-  password: z
-    .string()
-    .min(8, "Enter DOB in the format DDMMYYYY")
-    .max(8, "Enter DOB in the format DDMMYYYY"),
+  password: z.string().min(6, "Enter password of minimum length 6"),
   batch: z.string().min(1, "Batch is required"),
   year: z.string().min(1, "Year is required"),
   branch: z.string().min(1, "Branch is required"),
@@ -21,11 +19,10 @@ const userSignupSchema = z.object({
 
 const userSignInSchema = z.object({
   usn: z.string().min(10, "Username is required"),
-  password: z
-    .string()
-    .min(8, "Enter DOB in the format DDMMYYYY")
-    .max(8, "Enter DOB in the format DDMMYYYY"),
+  password: z.string().min(6, "Enter password of minimum length 6"),
 });
+
+router.use("/test", test);
 
 //Sign Up route
 router.post("/signup", async (req, res) => {
@@ -84,6 +81,34 @@ router.post("/signin", async (req, res) => {
       return res.status(400).json({ errors: err.errors });
     }
     res.status(500).json({ message: "Internal server error", err });
+  }
+});
+
+router.get("/tests", userMiddleWare, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const tests = await Test.find({
+      batch: user.batch.toLowerCase(),
+      branch: user.branch.toLowerCase(),
+      year: user.year,
+    })
+      .populate("courseId", "title")
+      .sort({ scheduledOn: 1 });
+
+    if (tests.length === 0) {
+      return res.status(404).json({ message: "There are no scheduled tests" });
+    }
+
+    res.status(200).json({ tests });
+  } catch (err) {
+    console.error("Error fetching tests for user batch:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
