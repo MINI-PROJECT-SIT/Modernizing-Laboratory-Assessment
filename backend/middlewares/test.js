@@ -2,7 +2,7 @@ const { Test } = require("../db/index.js");
 
 const testMiddleWare = async (req, res, next) => {
   try {
-    const { testId } = req.body;
+    const testId = req.params.testId || req.body.testId;
 
     if (!testId) {
       return res.status(400).json({ error: "Test ID is required" });
