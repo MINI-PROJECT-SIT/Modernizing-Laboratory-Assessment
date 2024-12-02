@@ -13,6 +13,7 @@ const userSchema = new Schema({
   usn: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -33,7 +34,7 @@ const userSchema = new Schema({
 });
 
 //Admin Schema
-const adminSchema = new Schema({
+const adminSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
@@ -41,6 +42,11 @@ const adminSchema = new Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
+    match: [
+      /^[a-zA-Z0-9._%+-]+@sit\.ac\.in$/,
+      "Please enter a valid SIT email address.",
+    ],
   },
   password: {
     type: String,
@@ -113,7 +119,7 @@ const TestSchema = new mongoose.Schema({
 
 const resultSchema = new mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   codingScore: { type: Number, required: true },
   vivaScore: { type: Number, required: true },
 });
