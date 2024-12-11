@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const { JWT_SECRET, saltRounds } = require("../config");
 const jwt = require("jsonwebtoken");
 const adminMiddleWare = require("../middlewares/admin.js");
+const { DateTime } = require("luxon");
 
 const adminSignUpSchema = z.object({
   username: z.string(),
@@ -207,12 +208,18 @@ router.post("/scheduletest", adminMiddleWare, async (req, res) => {
   try {
     const { courseId, batch, branch, year, scheduledOn } = req.body;
 
-    if (!courseId || !batch || !branch || !year) {
+    if (!courseId || !batch || !branch || !year || !scheduledOn) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    const foundCourse = await Course.findOne({ _id: courseId });
+    const parsedDate = DateTime.fromISO(scheduledOn, { zone: "Asia/Kolkata" });
+    if (!parsedDate.isValid) {
+      return res.status(400).json({ message: "Invalid scheduledOn format." });
+    }
 
+    const scheduledOnIST = parsedDate.toISO();
+
+    const foundCourse = await Course.findOne({ _id: courseId });
     if (!foundCourse) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -231,11 +238,11 @@ router.post("/scheduletest", adminMiddleWare, async (req, res) => {
 
     const newTest = new Test({
       course: foundCourse.title,
-      batch,
-      branch,
+      batch: batch.toLowerCase(),
+      branch: branch.toLowerCase(),
       courseId,
       year,
-      scheduledOn: scheduledOn ? new Date(scheduledOn) : null,
+      scheduledOn: scheduledOnIST,
       createdBy: req.userId,
     });
 
@@ -245,7 +252,7 @@ router.post("/scheduletest", adminMiddleWare, async (req, res) => {
       message: "Test created and scheduled successfully",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error in /scheduletest route:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

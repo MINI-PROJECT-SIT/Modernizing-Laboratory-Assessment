@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const { JWT_SECRET, saltRounds } = require("../config.js");
 const userMiddleWare = require("../middlewares/user.js");
 const test = require("./test.js");
+const { DateTime } = require("luxon");
 
 const userSignupSchema = z.object({
   username: z.string(),
@@ -93,6 +94,8 @@ router.get("/tests", userMiddleWare, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const currentTime = DateTime.utc();
+
     const tests = await Test.find({
       batch: user.batch.toLowerCase(),
       branch: user.branch.toLowerCase(),
@@ -105,7 +108,18 @@ router.get("/tests", userMiddleWare, async (req, res) => {
       return res.status(404).json({ message: "There are no scheduled tests" });
     }
 
-    res.status(200).json({ tests });
+    const upcomingTests = tests.filter((test) => {
+      const scheduledStart = DateTime.fromISO(test.scheduledOn, {
+        zone: "utc",
+      });
+      return scheduledStart.plus({ hours: 2 }) > currentTime;
+    });
+
+    if (upcomingTests.length === 0) {
+      return res.status(404).json({ message: "There are no upcoming tests" });
+    }
+
+    res.status(200).json({ tests: upcomingTests });
   } catch (err) {
     console.error("Error fetching tests for user batch:", err);
     res.status(500).json({ message: "Internal server error" });

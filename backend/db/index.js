@@ -112,7 +112,7 @@ const TestSchema = new mongoose.Schema({
   },
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
   year: { type: Number, required: true },
-  scheduledOn: { type: Date },
+  scheduledOn: { type: String, required: true },
   isCompleted: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
 });

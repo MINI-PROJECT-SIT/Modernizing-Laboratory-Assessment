@@ -1,4 +1,5 @@
 const { Test } = require("../db/index.js");
+const { DateTime } = require("luxon");
 
 const testMiddleWare = async (req, res, next) => {
   try {
@@ -13,16 +14,29 @@ const testMiddleWare = async (req, res, next) => {
       return res.status(404).json({ error: "Test not found" });
     }
 
-    const now = new Date();
-    const scheduledStart = new Date(test.scheduledOn);
-    const scheduledEnd = new Date(
-      scheduledStart.getTime() + 2 * 60 * 60 * 1000
-    );
+    if (!test.scheduledOn) {
+      return res
+        .status(500)
+        .json({ error: "Invalid scheduledOn format in database" });
+    }
+
+    const scheduledStart = DateTime.fromISO(test.scheduledOn, {
+      zone: "Asia/Kolkata",
+    });
+
+    if (!scheduledStart.isValid) {
+      return res
+        .status(500)
+        .json({ error: "Invalid scheduledOn format in database" });
+    }
+
+    const scheduledEnd = scheduledStart.plus({ hours: 2 });
+    const now = DateTime.now().setZone("Asia/Kolkata");
 
     if (now < scheduledStart) {
       return res.status(200).json({
         message: "Test is scheduled in the future.",
-        scheduledStart,
+        scheduledStart: scheduledStart.toISO(),
       });
     }
 

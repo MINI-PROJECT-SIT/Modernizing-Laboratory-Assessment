@@ -3,7 +3,7 @@ const router = express.Router();
 const { executeCode } = require("../execution/execute");
 const testMiddleWare = require("../middlewares/test");
 const userMiddleWare = require("../middlewares/user");
-const { Test, Course, Question, Result } = require("../db");
+const { Test, Course, Question, Result, Viva } = require("../db");
 const z = require("zod");
 
 const runSchema = z.object({
@@ -53,6 +53,7 @@ router.get(
       }
 
       res.status(200).json({
+        questionId: question._id,
         description: question.description,
         sampleTestCase: question.sampleTestCase,
       });
@@ -76,7 +77,7 @@ router.post(
       const test = req.test;
       const question = await Question.findById(questionId);
 
-      if (!question || !test.courseId.equals(question.course)) {
+      if (!question) {
         return res.status(404).json({
           error: "Question not found or does not belong to this test.",
         });
@@ -109,7 +110,7 @@ router.post(
       const test = req.test;
       const question = await Question.findById(questionId);
 
-      if (!question || !test.courseId.equals(question.course)) {
+      if (!question) {
         return res.status(404).json({
           error: "Question not found or does not belong to this test.",
         });
@@ -130,6 +131,13 @@ router.post(
           code,
           testCase.input
         );
+
+        if (result.run.stderr) {
+          return res.json({
+            error: result.run.stderr,
+            message: "Error executing code !!",
+          });
+        }
         const output = result.run.stdout.trim();
         results.push({
           input: testCase.input,
@@ -149,26 +157,48 @@ router.post(
         codingScore = 10;
       } else if (partialPassed > 0) {
         codingScore = 5;
-      } else {
-        codingScore = 0;
       }
 
       const studentId = req.userId;
-      const result = new Result({
+
+      const existingResult = await Result.findOne({
         testId: test._id,
         studentId,
-        codingScore,
-        vivaScore: 0,
       });
-      await result.save();
 
-      res.status(200).json({
-        results,
-        allPassed,
-        codingScore,
-        vivaScore,
-        message: allPassed ? "Accepted" : "Failed for hidden testcase",
-      });
+      if (existingResult) {
+        if (existingResult.codingScore !== 10) {
+          existingResult.codingScore = codingScore;
+          await existingResult.save();
+          return res.status(200).json({
+            results,
+            allPassed,
+            codingScore,
+            message: allPassed ? "Accepted" : "Failed for hidden testcase",
+          });
+        } else {
+          return res.status(200).json({
+            results,
+            allPassed,
+            codingScore,
+            message: allPassed ? "Accepted" : "Failed for hidden testcase",
+          });
+        }
+      } else {
+        const result = new Result({
+          testId: test._id,
+          studentId,
+          codingScore,
+          vivaScore: 0,
+        });
+        await result.save();
+        return res.status(200).json({
+          results,
+          allPassed,
+          codingScore,
+          message: allPassed ? "Accepted" : "Failed for hidden testcase",
+        });
+      }
     } catch (error) {
       console.error("Error in submission", error.message);
       res.status(500).json({ error: "Internal server error" });
