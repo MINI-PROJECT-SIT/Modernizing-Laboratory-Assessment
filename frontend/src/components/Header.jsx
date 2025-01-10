@@ -7,7 +7,7 @@ export function Header({ userRole }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  var userName = localStorage.getItem("name");
+  var userName = localStorage.getItem("name") || "anonymous";
   userName = userName[0].toUpperCase() + userName.substring(1);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
