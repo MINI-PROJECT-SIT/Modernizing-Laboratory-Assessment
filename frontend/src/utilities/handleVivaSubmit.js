@@ -11,6 +11,7 @@ export const handleVivaSubmit = async ({
   currentIndex,
   setCurrentIndex,
   totalQuestionsLoadable,
+  set403Error,
 }) => {
   if (!currentQuestion || isSubmitting) {
     return;
@@ -47,6 +48,7 @@ export const handleVivaSubmit = async ({
       setCurrentIndex(currentIndex + 1);
     }
   } catch (error) {
+    set403Error(true);
     throw error;
   } finally {
     setIsSubmitting(false);

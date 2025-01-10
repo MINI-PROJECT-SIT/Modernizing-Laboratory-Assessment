@@ -11,12 +11,12 @@ export function Test() {
     id || ""
   );
 
-  if (isLoading || !(timer && status === "scheduled")) {
-    return <CodeEditorSkeleton />;
-  }
-
   if (hasError) {
     return <ErrorHandler />;
+  }
+
+  if (isLoading || !(timer && status === "scheduled")) {
+    return <CodeEditorSkeleton />;
   }
 
   return (

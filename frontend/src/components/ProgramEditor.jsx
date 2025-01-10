@@ -1,6 +1,7 @@
 import { Loader2, Play, Send } from "lucide-react";
 import {
   allPassedAtom,
+  erro403Atom,
   errorAtom,
   expectedOutputAtom,
   failedInputAtom,
@@ -55,6 +56,7 @@ export function ProgramEditor({ id }) {
   const setExpectedOutput = useSetRecoilState(expectedOutputAtom);
   const setYourOutput = useSetRecoilState(yourOutputAtom);
   const setView = useSetRecoilState(viewAtom);
+  const set403Error = useSetRecoilState(erro403Atom);
 
   const setters = {
     setIsSubmitting,
@@ -67,6 +69,7 @@ export function ProgramEditor({ id }) {
     setMessage,
     setAllPassed,
     setIsRunning,
+    set403Error,
   };
 
   useEffect(() => {

@@ -54,3 +54,8 @@ export const yourOutputAtom = atom({
   key: "yourOutput",
   default: "",
 });
+
+export const erro403Atom = atom({
+  key: "403",
+  default: false,
+});

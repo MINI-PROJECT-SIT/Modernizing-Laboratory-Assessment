@@ -10,7 +10,7 @@ export const handleRun = async ({
   testInput,
   setters,
 }) => {
-  const { setIsRunning, setError, setOutput, setView } = setters;
+  const { setIsRunning, setError, setOutput, setView, set403Error } = setters;
 
   setIsRunning(true);
   setError("");
@@ -38,6 +38,7 @@ export const handleRun = async ({
   } catch (err) {
     console.error("Error during code execution:", err.message);
     setError(err.message);
+    set403Error(true);
   } finally {
     setIsRunning(false);
   }

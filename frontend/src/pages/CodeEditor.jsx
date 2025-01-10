@@ -12,10 +12,12 @@ import { TestHeader } from "../components/TestHeader";
 import { ProblemPanel } from "../components/ProblemPanel";
 import { OutputPanel } from "../components/OutputPanel";
 import { ProgramEditor } from "../components/ProgramEditor";
+import { erro403Atom } from "../store/atoms/atoms";
 
 export function CodeEditor() {
   const { id } = useParams();
   const question = useRecoilValue(questionAtomFamily(id));
+  const error403 = useRecoilValue(erro403Atom);
   const { status, isLoading, hasError } = useTestState(id);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,7 +25,7 @@ export function CodeEditor() {
   if (isLoading) {
     return <CodeEditorSkeleton />;
   }
-  if (hasError || !question?.description || status === "expired") {
+  if (hasError || !question?.description || status === "expired" || error403) {
     return <ErrorHandler />;
   }
 

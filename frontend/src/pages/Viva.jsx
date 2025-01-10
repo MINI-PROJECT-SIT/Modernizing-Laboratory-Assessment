@@ -17,6 +17,7 @@ import { VivaSkeleton } from "../components/VivaSkeleton";
 import { handleFinishTest } from "../utilities/finishTest";
 import { Progress } from "../components/Progress";
 import { handleVivaSubmit } from "../utilities/handleVivaSubmit";
+import { erro403Atom } from "../store/atoms/atoms";
 
 export function Viva() {
   const { id } = useParams();
@@ -34,6 +35,8 @@ export function Viva() {
   const [currentIndex, setCurrentIndex] = useRecoilState(
     currentQuestionIndexAtom
   );
+
+  const [error403, set403Error] = useRecoilState(erro403Atom);
 
   const currentQuestion =
     currentQuestionLoadable.state === "hasValue"
@@ -63,7 +66,8 @@ export function Viva() {
 
   if (
     currentQuestionLoadable.state === "hasError" ||
-    totalQuestionsLoadable.state === "hasError"
+    totalQuestionsLoadable.state === "hasError" ||
+    error403
   ) {
     return <ErrorHandler />;
   }
@@ -143,6 +147,7 @@ export function Viva() {
                         currentIndex,
                         setCurrentIndex,
                         totalQuestionsLoadable,
+                        set403Error,
                       })
                     }
                     disabled={questionState.answered || isSubmitting}

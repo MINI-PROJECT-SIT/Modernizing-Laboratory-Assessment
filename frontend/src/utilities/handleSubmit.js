@@ -19,6 +19,7 @@ export const handleSubmit = async ({
     setError,
     setMessage,
     setAllPassed,
+    set403Error,
   } = setters;
 
   setIsSubmitting(true);
@@ -57,6 +58,7 @@ export const handleSubmit = async ({
     setIsSubmitting(false);
   } catch (err) {
     console.error("Error during code submission:", err.message);
+    set403Error(true);
     setError(err.message);
   } finally {
     setIsSubmitting(false);
