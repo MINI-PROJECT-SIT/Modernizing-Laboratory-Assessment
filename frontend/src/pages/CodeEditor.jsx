@@ -12,12 +12,14 @@ import { TestHeader } from "../components/TestHeader";
 import { ProblemPanel } from "../components/ProblemPanel";
 import { OutputPanel } from "../components/OutputPanel";
 import { ProgramEditor } from "../components/ProgramEditor";
-import { erro403Atom } from "../store/atoms/atoms";
+import { erro403Atom, isCheatedAtom } from "../store/atoms/atoms";
+import { CaughtCheating } from "../components/CaughtCheating";
 
 export function CodeEditor() {
   const { id } = useParams();
   const question = useRecoilValue(questionAtomFamily(id));
   const error403 = useRecoilValue(erro403Atom);
+  const isCheated = useRecoilValue(isCheatedAtom);
   const { status, isLoading, hasError } = useTestState(id);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,29 +52,33 @@ export function CodeEditor() {
           toggleSidebar={toggleSidebar}
           isSidebarOpen={isSidebarOpen}
         />
-        <div className="h-screen bg-white text-black p-2">
-          <Split
-            horizontal={false}
-            initialPrimarySize="40%"
-            minPrimarySize="20%"
-            minSecondarySize="40%"
-            splitterSize="4px"
-            splitterClassName="bg-green-300 hover:bg-green-500 transition-colors duration-200"
-          >
+        {isCheated ? (
+          <CaughtCheating id={id} />
+        ) : (
+          <div className="h-screen bg-white text-black p-2">
             <Split
-              horizontal={true}
-              initialPrimarySize="55%"
-              minPrimarySize="40%"
-              minSecondarySize="20%"
+              horizontal={false}
+              initialPrimarySize="40%"
+              minPrimarySize="20%"
+              minSecondarySize="40%"
               splitterSize="4px"
               splitterClassName="bg-green-300 hover:bg-green-500 transition-colors duration-200"
             >
-              <ProblemPanel question={question} />
-              <OutputPanel />
+              <Split
+                horizontal={true}
+                initialPrimarySize="55%"
+                minPrimarySize="40%"
+                minSecondarySize="20%"
+                splitterSize="4px"
+                splitterClassName="bg-green-300 hover:bg-green-500 transition-colors duration-200"
+              >
+                <ProblemPanel question={question} />
+                <OutputPanel />
+              </Split>
+              <ProgramEditor id={id} />
             </Split>
-            <ProgramEditor id={id} />
-          </Split>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

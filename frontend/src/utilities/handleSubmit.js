@@ -8,6 +8,8 @@ export const handleSubmit = async ({
   version,
   code,
   setters,
+  codeLength,
+  keyStrokeCount,
 }) => {
   const {
     setIsSubmitting,
@@ -20,6 +22,7 @@ export const handleSubmit = async ({
     setMessage,
     setAllPassed,
     set403Error,
+    setIsCheated,
   } = setters;
 
   setIsSubmitting(true);
@@ -32,6 +35,8 @@ export const handleSubmit = async ({
         language,
         version,
         code,
+        codeLength,
+        keyStrokeCount,
       },
       {
         headers: {
@@ -39,6 +44,11 @@ export const handleSubmit = async ({
         },
       }
     );
+
+    if (response.data.isCheated) {
+      setIsCheated(true);
+      return;
+    }
 
     if (!response.data.allPassed) {
       for (var i = 0; i < response.data.results?.length; i++) {

@@ -59,3 +59,8 @@ export const erro403Atom = atom({
   key: "403",
   default: false,
 });
+
+export const isCheatedAtom = atom({
+  key: "cheated",
+  default: false,
+});
