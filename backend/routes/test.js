@@ -21,6 +21,8 @@ const submitSchema = z.object({
   language: z.string(),
   version: z.string(),
   code: z.string(),
+  codeLength: z.number(),
+  keyStrokeCount: z.number(),
 });
 
 router.get(
@@ -103,9 +105,14 @@ router.post(
   testMiddleWare,
   async (req, res) => {
     try {
-      const { questionId, language, version, code } = submitSchema.parse(
-        req.body
-      );
+      const {
+        questionId,
+        language,
+        version,
+        code,
+        codeLength,
+        keyStrokeCount,
+      } = submitSchema.parse(req.body);
 
       const test = req.test;
       const question = await Question.findById(questionId);
@@ -113,6 +120,42 @@ router.post(
       if (!question) {
         return res.status(404).json({
           error: "Question not found or does not belong to this test.",
+        });
+      }
+
+      const studentId = req.userId;
+
+      const existingResult = await Result.findOne({
+        testId: test._id,
+        studentId,
+      });
+
+      if (existingResult?.isCheated) {
+        return res.status(200).json({
+          isCheated: true,
+          message: "Your typing pattern suggests possible copy-paste.",
+        });
+      }
+
+      if (keyStrokeCount < Math.floor(codeLength * 0.6)) {
+        // Copy detected
+        if (existingResult) {
+          existingResult.codingScore = 0;
+          existingResult.isCheated = true;
+          await existingResult.save();
+        } else {
+          const result = new Result({
+            testId: req.test._id,
+            studentId,
+            codingScore: 0,
+            vivaScore: 0,
+            isCheated: true,
+          });
+          await result.save();
+        }
+        return res.status(200).json({
+          isCheated: true,
+          message: "Your typing pattern suggests possible copy-paste.",
         });
       }
 
@@ -158,13 +201,6 @@ router.post(
       } else if (partialPassed > 0) {
         codingScore = 5;
       }
-
-      const studentId = req.userId;
-
-      const existingResult = await Result.findOne({
-        testId: test._id,
-        studentId,
-      });
 
       if (existingResult) {
         if (existingResult.codingScore !== 10) {
