@@ -5,6 +5,7 @@ import {
   errorAtom,
   expectedOutputAtom,
   failedInputAtom,
+  isCheatedAtom,
   isRunningAtom,
   isSubmittingAtom,
   messageAtom,
@@ -41,6 +42,8 @@ export function ProgramEditor({ id }) {
   const [version, setVersion] = useState("10.2.0");
   const [languages] = useState(["c", "cpp", "java", "javascript", "python"]);
   const [code, setCode] = useState("");
+  const [keyStrokeCount, setKeystrokeCount] = useState(0);
+  const [boilerplateLength, setBoilerplateLength] = useState(0);
 
   const question = useRecoilValue(questionAtomFamily(id));
 
@@ -57,6 +60,7 @@ export function ProgramEditor({ id }) {
   const setYourOutput = useSetRecoilState(yourOutputAtom);
   const setView = useSetRecoilState(viewAtom);
   const set403Error = useSetRecoilState(erro403Atom);
+  const setIsCheated = useSetRecoilState(isCheatedAtom);
 
   const setters = {
     setIsSubmitting,
@@ -70,6 +74,7 @@ export function ProgramEditor({ id }) {
     setAllPassed,
     setIsRunning,
     set403Error,
+    setIsCheated,
   };
 
   useEffect(() => {
@@ -77,6 +82,8 @@ export function ProgramEditor({ id }) {
       const boilerplate = await loadBoilerplate(language);
       setCode(boilerplate.code);
       setVersion(boilerplate.version);
+      setKeystrokeCount(0);
+      setBoilerplateLength(boilerplate.code.length);
     };
 
     setInitialBoilerplate();
@@ -93,6 +100,8 @@ export function ProgramEditor({ id }) {
     const boilerplate = await loadBoilerplate(lang);
     setCode(boilerplate.code);
     setVersion(boilerplate.version);
+    setKeystrokeCount(0);
+    setBoilerplateLength(boilerplate.code.length);
   };
 
   const onSubmit = () => {
@@ -103,6 +112,8 @@ export function ProgramEditor({ id }) {
       version,
       code,
       setters,
+      codeLength: code.length - boilerplateLength,
+      keyStrokeCount,
     });
   };
 
@@ -115,6 +126,12 @@ export function ProgramEditor({ id }) {
       code,
       testInput,
       setters,
+    });
+  };
+
+  const handleEditorDidMount = (editor) => {
+    editor.onDidChangeModelContent(() => {
+      setKeystrokeCount((prev) => prev + 1);
     });
   };
 
@@ -170,6 +187,7 @@ export function ProgramEditor({ id }) {
             fontSize: 16,
           }}
           className="border border-gray-100 p-5 rounded-md"
+          onMount={handleEditorDidMount}
         />
       </div>
     </div>

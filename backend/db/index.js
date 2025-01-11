@@ -122,6 +122,7 @@ const resultSchema = new mongoose.Schema({
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   codingScore: { type: Number, required: true },
   vivaScore: { type: Number, required: true },
+  isCheated: { type: Boolean, default: true },
 });
 
 const User = mongoose.model("User", userSchema);
