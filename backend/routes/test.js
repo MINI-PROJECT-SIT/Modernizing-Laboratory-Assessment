@@ -5,6 +5,7 @@ const testMiddleWare = require("../middlewares/test");
 const userMiddleWare = require("../middlewares/user");
 const { Test, Course, Question, Result, Viva } = require("../db");
 const z = require("zod");
+const changeofquestionMiddleware = require("../middlewares/changeOfQuestion");
 
 const runSchema = z.object({
   questionId: z.string(),
@@ -38,6 +39,11 @@ router.get(
         return res.status(404).json({ error: "Test not found." });
       }
 
+      const existing = await Result.findOne({
+        testId,
+        studentId: req.userId,
+      });
+
       const course = await Course.findById(test.courseId).populate("questions");
       if (!course || !course.questions.length) {
         return res.status(404).json({
@@ -45,13 +51,30 @@ router.get(
         });
       }
 
-      const randomQuestionId =
-        course.questions[Math.floor(Math.random() * course.questions.length)];
+      let randomQuestionId;
+
+      if (existing?.questionId) {
+        randomQuestionId = existing.questionId;
+      } else {
+        randomQuestionId =
+          course.questions[Math.floor(Math.random() * course.questions.length)];
+      }
 
       const question = await Question.findById(randomQuestionId);
 
       if (!question) {
         return res.status(404).json({ error: "Question not found." });
+      }
+
+      if (!existing) {
+        const result = new Result({
+          testId: test._id,
+          studentId: req.userId,
+          questionId: question._id,
+          codingScore: 0,
+          vivaScore: 0,
+        });
+        await result.save();
       }
 
       res.status(200).json({
@@ -389,6 +412,74 @@ router.post(
       });
     } catch (error) {
       console.error("Error submitting viva answer:", error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.post(
+  "/:testId/changeofquestion",
+  userMiddleWare,
+  testMiddleWare,
+  changeofquestionMiddleware,
+  async (req, res) => {
+    try {
+      const { testId } = req.params;
+
+      const test = await Test.findById(testId).populate("courseId");
+      if (!test) {
+        return res.status(404).json({ error: "Test not found." });
+      }
+
+      if (!test.hasChangeOfQuestion) {
+        return res.status(403).json({
+          message: "No change of question for this test",
+        });
+      }
+
+      const existing = await Result.findOne({
+        testId,
+        studentId: req.userId,
+      });
+
+      if (existing?.optedChangeOfQuestion) {
+        return res.status(200).json({
+          message: "You already opted change of question",
+        });
+      }
+
+      const course = await Course.findById(test.courseId).populate("questions");
+      if (!course || !course.questions.length) {
+        return res.status(404).json({
+          error: "No questions available for the course linked to this test.",
+        });
+      }
+
+      let randomQuestionId;
+      do {
+        randomQuestionId =
+          course.questions[Math.floor(Math.random() * course.questions.length)];
+      } while (randomQuestionId === existing.questionId);
+
+      const question = await Question.findById(randomQuestionId);
+
+      if (!question) {
+        return res.status(404).json({ error: "Question not found." });
+      }
+
+      if (existing) {
+        existing.questionId = randomQuestionId;
+        existing.optedChangeOfQuestion = true;
+        await existing.save();
+      }
+
+      res.status(200).json({
+        questionId: question._id,
+        description: question.description,
+        sampleTestCase: question.sampleTestCase,
+      });
+    } catch (error) {
+      console.error("Error fetching question:", error.message);
       res.status(500).json({ error: "Internal server error" });
     }
   }
