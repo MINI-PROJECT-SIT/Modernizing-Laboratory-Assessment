@@ -50,7 +50,11 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ userId }, JWT_SECRET);
     res
       .status(200)
-      .json({ message: "User created successfully", token: token });
+      .json({
+        message: "User created successfully",
+        token: token,
+        name: username,
+      });
   } catch (err) {
     console.log("Error", err);
     if (err instanceof z.ZodError) {
@@ -75,7 +79,7 @@ router.post("/signin", async (req, res) => {
     const userId = user._id;
     const token = jwt.sign({ userId }, JWT_SECRET);
 
-    res.status(200).json({ token: token });
+    res.status(200).json({ token: token, name: user.username });
   } catch (err) {
     console.log("Error", err);
     if (err instanceof z.ZodError) {

@@ -42,7 +42,11 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ userId }, JWT_SECRET);
     res
       .status(200)
-      .json({ message: "Admin account created successfully", token: token });
+      .json({
+        message: "Admin account created successfully",
+        token: token,
+        name: username,
+      });
   } catch (err) {
     console.log("Error", err);
     if (err instanceof z.ZodError) {
@@ -68,7 +72,7 @@ router.post("/signin", async (req, res) => {
     const userId = admin._id;
     const token = jwt.sign({ userId }, JWT_SECRET);
 
-    res.status(200).json({ token: token });
+    res.status(200).json({ token: token, name: admin.username });
   } catch (err) {
     console.log("Error", err);
     if (err instanceof z.ZodError) {
