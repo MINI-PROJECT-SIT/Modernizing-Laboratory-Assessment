@@ -1,54 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Check, AlertCircle } from 'lucide-react';
-import { styles } from '../styles/styles';
+import React, { useState, useEffect } from "react";
+import { AlertCircle, Check } from "lucide-react";
+import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { InputBox } from "../components/InputBox";
+import { Header } from "../components/Header";
+import axios from "axios";
+import { BACKEND_URL } from "../../config";
+import { ScheduleTestSkeleton } from "../components/ScheduleTestSkeleton";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const ScheduleTest = () => {
   const [courses, setCourses] = useState([]);
   const [formData, setFormData] = useState({
-    courseId: '',
-    batch: '',
-    branch: '',
-    year: '',
-    scheduledOn: ''
+    courseId: "",
+    batch: "",
+    branch: "",
+    year: "",
+    scheduledOn: null,
+    hasChangeOfQuestion: false,
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [init, setInit] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
   const fetchCourses = async () => {
+    setInit(true);
     try {
-      const response = await fetch('/api/courses');
-      const data = await response.json();
-      if (response.ok) {
-        setCourses(data.courses);
+      const response = await axios.get(`${BACKEND_URL}/api/v1/admin/courses`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      if (response.status === 200) {
+        setCourses(response.data.courses);
       } else {
-        setError('Failed to fetch courses');
+        setError("Failed to fetch courses");
       }
     } catch (err) {
-      setError('Failed to fetch courses');
+      setError("Failed to fetch courses");
       console.error(err);
+    } finally {
+      setInit(false);
     }
   };
 
+  if (init) {
+    return <ScheduleTestSkeleton />;
+  }
+
   const validateForm = () => {
     if (!formData.courseId) {
-      setError('Please select a course');
+      setError("Please select a course");
       return false;
     }
     if (!formData.batch) {
-      setError('Please enter a batch');
+      setError("Please enter a batch");
       return false;
     }
     if (!formData.branch) {
-      setError('Please enter a branch');
+      setError("Please enter a branch");
       return false;
     }
     if (!formData.year) {
-      setError('Please enter a year');
+      setError("Please enter a year");
+      return false;
+    }
+    if (!formData.scheduledOn) {
+      setError("Please select a scheduled date and time");
       return false;
     }
     return true;
@@ -59,34 +84,43 @@ const ScheduleTest = () => {
     if (!validateForm()) return;
 
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await fetch('/api/schedule-test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const formDataToSubmit = {
+        ...formData,
+        scheduledOn: formData.scheduledOn?.toISOString(),
+      };
 
-      const data = await response.json();
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/scheduletest`,
+        formDataToSubmit,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      if (response.ok) {
-        setSuccess('Test scheduled successfully!');
+      if (response.status === 200) {
+        setSuccess("Test scheduled successfully!");
         setFormData({
-          courseId: '',
-          batch: '',
-          branch: '',
-          year: '',
-          scheduledOn: ''
+          courseId: "",
+          batch: "",
+          branch: "",
+          year: "",
+          scheduledOn: null,
+          hasChangeOfQuestion: false,
         });
       } else {
-        setError(data.message || 'Failed to schedule test');
+        setError(response.data.message || "Failed to schedule test");
       }
     } catch (err) {
-      setError('An error occurred while scheduling the test');
+      setError(
+        err.response?.data?.message ||
+          "An error occurred while scheduling the test"
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -94,105 +128,162 @@ const ScheduleTest = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.formContainer}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Schedule Test</h1>
-        </div>
+    <div>
+      <Header userRole={"Teacher"} />
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {error && (
-            <div style={styles.error}>
-              <AlertCircle style={{ width: '16px', height: '16px' }} />
-              <p>{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div style={styles.success}>
-              <Check style={{ width: '16px', height: '16px' }} />
-              <p>{success}</p>
-            </div>
-          )}
-
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
           <div>
-            <label style={styles.label}>Course</label>
-            <select
-              value={formData.courseId}
-              onChange={(e) => setFormData(prev => ({ ...prev, courseId: e.target.value }))}
-              style={styles.input}
-            >
-              <option value="">Select a course</option>
-              {courses.map(course => (
-                <option key={course._id} value={course._id}>
-                  {course.title}
-                </option>
-              ))}
-            </select>
+            <h1 className="text-3xl font-bold text-center text-green-600">
+              Schedule Test
+            </h1>
           </div>
 
-          <div>
-            <label style={styles.label}>Batch</label>
-            <input
-              type="text"
-              value={formData.batch}
-              onChange={(e) => setFormData(prev => ({ ...prev, batch: e.target.value }))}
-              placeholder="Enter batch"
-              style={styles.input}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          <div>
-            <label style={styles.label}>Branch</label>
-            <input
-              type="text"
-              value={formData.branch}
-              onChange={(e) => setFormData(prev => ({ ...prev, branch: e.target.value }))}
-              placeholder="Enter branch"
-              style={styles.input}
-            />
-          </div>
+            {success && (
+              <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Check className="h-5 w-5 text-green-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-green-700">{success}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          <div>
-            <label style={styles.label}>Year</label>
-            <input
-              type="text"
-              value={formData.year}
-              onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
-              placeholder="Enter year"
-              style={styles.input}
-            />
-          </div>
+            <div className="space-y-6">
+              <div>
+                <label
+                  htmlFor="course"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Course
+                </label>
+                <select
+                  id="course"
+                  value={formData.courseId}
+                  onChange={(e) => {
+                    if (e.target.value === "newCourse") {
+                      navigate("/admin/course");
+                    }
+                    setFormData((prev) => ({
+                      ...prev,
+                      courseId: e.target.value,
+                    }));
+                  }}
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-transparent border-b"
+                >
+                  <option value="">Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course._id} value={course._id}>
+                      {course.title}
+                    </option>
+                  ))}
+                  <option value="newCourse">
+                    Add new Course / Add questions to Existing{" "}
+                  </option>
+                </select>
+              </div>
 
-          <div>
-            <label style={styles.label}>Schedule Date & Time (Optional)</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Calendar style={{ width: '16px', height: '16px', color: '#4CAF50' }} />
-              <input
-                type="datetime-local"
-                value={formData.scheduledOn}
-                onChange={(e) => setFormData(prev => ({ ...prev, scheduledOn: e.target.value }))}
-                style={styles.input}
+              <InputBox
+                text="Branch"
+                type="text"
+                value={formData.branch}
+                setter={(value) =>
+                  setFormData((prev) => ({ ...prev, branch: value }))
+                }
               />
-            </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              ...styles.button,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {loading ? 'Scheduling...' : 'Schedule Test'}
-          </button>
-        </form>
+              <div className="grid grid-cols-2 gap-4">
+                <InputBox
+                  text="Batch"
+                  type="text"
+                  value={formData.batch}
+                  setter={(value) =>
+                    setFormData((prev) => ({ ...prev, batch: value }))
+                  }
+                />
+
+                <InputBox
+                  text="Year"
+                  type="text"
+                  value={formData.year}
+                  setter={(value) =>
+                    setFormData((prev) => ({ ...prev, year: value }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="scheduledOn"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Schedule Date & Time
+                </label>
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <MobileDateTimePicker
+                    defaultValue={dayjs("2025-01-12")}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        scheduledOn: e,
+                      }))
+                    }
+                  />
+                </LocalizationProvider>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  id="hasChangeOfQuestion"
+                  type="checkbox"
+                  checked={formData.hasChangeOfQuestion}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      hasChangeOfQuestion: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="hasChangeOfQuestion"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Provide change of question
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+            >
+              {loading ? "Scheduling..." : "Schedule Test"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
 export default ScheduleTest;
-

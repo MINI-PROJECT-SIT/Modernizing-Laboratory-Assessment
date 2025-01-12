@@ -9,6 +9,9 @@ import { Viva } from "./pages/Viva";
 import { TestResult } from "./pages/TestResult";
 import { Results } from "./pages/Results";
 import AuthPage from "./pages/AuthPage";
+import { AdminDashBoard } from "./pages/AdminDashBoard";
+import ScheduleTest from "./pages/ScheduleTest";
+import CreateCourse from "./pages/CreateCourse";
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
           <Route path="/viva/:id" element={<Viva />} />
           <Route path="/result/:id" element={<TestResult />} />
           <Route path="/results" element={<Results />} />
+          <Route path="/admin/dashboard" element={<AdminDashBoard />} />
+          <Route path="/admin/tests" element={<ScheduleTest />} />
+          <Route path="/admin/course" element={<CreateCourse />} />
         </Routes>
       </BrowserRouter>
     </RecoilRoot>

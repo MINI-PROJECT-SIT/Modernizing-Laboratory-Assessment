@@ -1,9 +1,9 @@
 import { Header } from "../components/Header";
 
-export function UserDashBoard() {
+export function AdminDashBoard() {
   return (
     <div>
-      <Header userRole={"Student"} />
+      <Header userRole={"Teacher"} />
     </div>
   );
 }

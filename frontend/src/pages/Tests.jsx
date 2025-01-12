@@ -5,6 +5,7 @@ import { Calendar, Clock } from "lucide-react";
 import { BACKEND_URL } from "../../config";
 import { Header } from "../components/Header";
 import { ErrorHandler } from "../components/ErrorHandler";
+import { TestsSkeleton } from "../components/TestsSkeleton";
 
 export function Tests() {
   const [tests, setTests] = useState([]);
@@ -53,11 +54,7 @@ export function Tests() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-lg text-gray-600">Loading tests...</div>
-      </div>
-    );
+    return <TestsSkeleton />;
   }
 
   if (error) {
