@@ -114,15 +114,19 @@ const TestSchema = new mongoose.Schema({
   year: { type: Number, required: true },
   scheduledOn: { type: String, required: true },
   isCompleted: { type: Boolean, default: false },
+  hasChangeOfQuestion: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
 });
 
 const resultSchema = new mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Result" },
   codingScore: { type: Number, required: true },
   vivaScore: { type: Number, required: true },
-  isCheated: { type: Boolean, default: true },
+  code: { type: String },
+  isCheated: { type: Boolean, default: false },
+  optedChangeOfQuestion: { type: Boolean, default: false },
 });
 
 const User = mongoose.model("User", userSchema);
