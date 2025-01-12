@@ -206,7 +206,8 @@ router.get("/courses", adminMiddleWare, async (req, res) => {
 
 router.post("/scheduletest", adminMiddleWare, async (req, res) => {
   try {
-    const { courseId, batch, branch, year, scheduledOn } = req.body;
+    const { courseId, batch, branch, year, scheduledOn, hasChangeOfQuestion } =
+      req.body;
 
     if (!courseId || !batch || !branch || !year || !scheduledOn) {
       return res.status(400).json({ message: "Missing required fields." });
@@ -245,6 +246,10 @@ router.post("/scheduletest", adminMiddleWare, async (req, res) => {
       scheduledOn: scheduledOnIST,
       createdBy: req.userId,
     });
+
+    if (hasChangeOfQuestion) {
+      newTest.hasChangeOfQuestion = true;
+    }
 
     await newTest.save();
 

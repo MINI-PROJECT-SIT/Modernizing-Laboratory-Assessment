@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Split } from "@geoffcox/react-splitter";
 import { useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { useTestState } from "../hooks/useTestState";
 import { CodeEditorSidebar } from "../components/CodeEditorSidebar";
@@ -12,7 +12,12 @@ import { TestHeader } from "../components/TestHeader";
 import { ProblemPanel } from "../components/ProblemPanel";
 import { OutputPanel } from "../components/OutputPanel";
 import { ProgramEditor } from "../components/ProgramEditor";
-import { erro403Atom, isCheatedAtom } from "../store/atoms/atoms";
+import {
+  erro403Atom,
+  findingQuestionAtom,
+  isCheatedAtom,
+  sideBarAtom,
+} from "../store/atoms/atoms";
 import { CaughtCheating } from "../components/CaughtCheating";
 
 export function CodeEditor() {
@@ -20,11 +25,13 @@ export function CodeEditor() {
   const question = useRecoilValue(questionAtomFamily(id));
   const error403 = useRecoilValue(erro403Atom);
   const isCheated = useRecoilValue(isCheatedAtom);
+  const isFinding = useRecoilValue(findingQuestionAtom);
+
   const { status, isLoading, hasError } = useTestState(id);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useRecoilState(sideBarAtom);
 
-  if (isLoading) {
+  if (isLoading || isFinding) {
     return <CodeEditorSkeleton />;
   }
   if (hasError || !question?.description || status === "expired" || error403) {

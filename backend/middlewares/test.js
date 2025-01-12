@@ -30,6 +30,8 @@ const testMiddleWare = async (req, res, next) => {
         .json({ error: "Invalid scheduledOn format in database" });
     }
 
+    req.scheduledStart = scheduledStart;
+
     const scheduledEnd = scheduledStart.plus({ hours: 2 });
     const now = DateTime.now().setZone("Asia/Kolkata");
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ChangeOfQuestion } from "./ChangeOfQuestion";
 
 export const CodeEditorSidebar = ({ testId, onFinishTest, isOpen }) => {
   return (
@@ -31,6 +32,7 @@ export const CodeEditorSidebar = ({ testId, onFinishTest, isOpen }) => {
               >
                 Start Viva
               </Link>
+              <ChangeOfQuestion id={testId} />
             </div>
             <div className="border-t border-gray-200 pt-4 mt-auto flex justify-center">
               <button
