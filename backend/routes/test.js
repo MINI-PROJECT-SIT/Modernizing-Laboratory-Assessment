@@ -455,14 +455,31 @@ router.post(
         });
       }
 
+      if (course.questions.length === 1) {
+        return res.status(400).json({
+          error: "No alternative questions available in the course.",
+        });
+      }
+
       let randomQuestionId;
+      let attempts = 0;
+      const maxAttempts = 10;
+
       do {
         randomQuestionId =
-          course.questions[Math.floor(Math.random() * course.questions.length)];
-      } while (randomQuestionId === existing.questionId);
+          course.questions[Math.floor(Math.random() * course.questions.length)]
+            ._id;
+        attempts++;
+
+        if (attempts >= maxAttempts) {
+          return res.status(500).json({
+            error:
+              "Failed to find a different question after multiple attempts.",
+          });
+        }
+      } while (randomQuestionId.toString() === existing.questionId.toString());
 
       const question = await Question.findById(randomQuestionId);
-
       if (!question) {
         return res.status(404).json({ error: "Question not found." });
       }
