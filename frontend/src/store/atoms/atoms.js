@@ -64,3 +64,13 @@ export const isCheatedAtom = atom({
   key: "cheated",
   default: false,
 });
+
+export const findingQuestionAtom = atom({
+  key: "COQLOADING",
+  default: false,
+});
+
+export const sideBarAtom = atom({
+  key: "sideBarAtom",
+  default: false,
+});

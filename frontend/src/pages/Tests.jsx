@@ -91,7 +91,14 @@ export function Tests() {
                         {test.courseId.title}
                       </h2>
                       <button
-                        onClick={() => navigate(`/test/${test._id}`)}
+                        onClick={() => {
+                          if (test.hasChangeOfQuestion) {
+                            localStorage.setItem("hasChangeOfQuestion", "true");
+                          } else {
+                            localStorage.removeItem("hasChangeOfQuestion");
+                          }
+                          navigate(`/test/${test._id}`);
+                        }}
                         className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 w-full sm:w-auto mt-2 sm:mt-0"
                       >
                         Start Test
