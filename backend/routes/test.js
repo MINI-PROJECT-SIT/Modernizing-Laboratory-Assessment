@@ -6,7 +6,7 @@ const userMiddleWare = require("../middlewares/user");
 const { Test, Course, Question, Result, Viva } = require("../db");
 const z = require("zod");
 const changeofquestionMiddleware = require("../middlewares/changeOfQuestion");
-
+const demo = require("./demo");
 const runSchema = z.object({
   questionId: z.string(),
   language: z.string(),
@@ -25,6 +25,8 @@ const submitSchema = z.object({
   codeLength: z.number(),
   keyStrokeCount: z.number(),
 });
+
+router.use("/demo", demo);
 
 router.get(
   "/:testId/question",
@@ -497,6 +499,47 @@ router.post(
       });
     } catch (error) {
       console.error("Error fetching question:", error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.post(
+  "/:testId/finish",
+  userMiddleWare,
+  testMiddleWare,
+  async (req, res) => {
+    try {
+      const { testId } = req.params;
+
+      const test = await Test.findById(testId);
+      if (!test) {
+        return res.status(404).json({ error: "Test not found." });
+      }
+
+      if (test.isCompleted) {
+        return res.status(200).json({
+          message: "Test has already been completed.",
+        });
+      }
+
+      const results = await Result.find({ testId });
+
+      for (const result of results) {
+        result.isFinished = true;
+        await result.save();
+      }
+
+      test.isCompleted = true;
+      await test.save();
+
+      res.status(200).json({
+        message: "Test marked as completed successfully.",
+        testId: test._id,
+        completedOn: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error finishing the test:", error.message);
       res.status(500).json({ error: "Internal server error" });
     }
   }
