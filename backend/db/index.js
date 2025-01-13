@@ -118,6 +118,19 @@ const TestSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
 });
 
+const demoResult = new mongoose.Schema({
+  course: { type: String },
+  testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Result" },
+  codingScore: { type: Number, required: true },
+  vivaScore: { type: Number, required: true },
+  code: { type: String },
+  isCheated: { type: Boolean, default: false },
+  isFinished: { type: Boolean, default: false },
+  optedChangeOfQuestion: { type: Boolean, default: false },
+});
+
 const resultSchema = new mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -126,6 +139,7 @@ const resultSchema = new mongoose.Schema({
   vivaScore: { type: Number, required: true },
   code: { type: String },
   isCheated: { type: Boolean, default: false },
+  isFinished: { type: Boolean, default: false },
   optedChangeOfQuestion: { type: Boolean, default: false },
 });
 
@@ -136,4 +150,14 @@ const Test = mongoose.model("Test", TestSchema);
 const Course = mongoose.model("Course", courseSchema);
 const Viva = mongoose.model("Viva", vivaSchema);
 const Result = mongoose.model("Result", resultSchema);
-module.exports = { User, Admin, Question, Test, Course, Viva, Result };
+const DemoResult = mongoose.model("DemoResult", demoResult);
+module.exports = {
+  User,
+  Admin,
+  Question,
+  Test,
+  Course,
+  Viva,
+  Result,
+  DemoResult,
+};
