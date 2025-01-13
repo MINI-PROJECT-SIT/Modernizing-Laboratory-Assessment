@@ -1,124 +1,132 @@
-import React, { useState } from 'react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactTyped } from "react-typed";
+import { Calendar, Clock } from "lucide-react";
 import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const Card = ({ title, children }) => (
-  <div style={{
-    border: '1px solid #e0e0e0',
-    borderRadius: '8px',
-    padding: '20px',
-    marginBottom: '20px',
-    backgroundColor: 'white',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    animation: 'fadeIn 0.5s ease-out',
-  }}>
-    <h3 style={{ fontSize: '1.5rem', marginBottom: '15px', color: '#27ae60' }}>{title}</h3>
+  <div className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+    <h3 className="mb-4 text-xl font-semibold text-green-600">{title}</h3>
     {children}
   </div>
 );
 
 const ListItem = ({ children }) => (
-  <li style={{
-    marginBottom: '10px',
-    paddingLeft: '20px',
-    position: 'relative',
-    animation: 'slideIn 0.5s ease-out',
-  }}>
-    <span style={{
-      position: 'absolute',
-      left: '0',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: '6px',
-      height: '6px',
-      backgroundColor: '#27ae60',
-      borderRadius: '50%',
-    }}></span>
+  <li className="mb-2 flex items-center">
+    <span className="mr-2 h-1.5 w-1.5 rounded-full bg-green-500"></span>
     {children}
   </li>
 );
 
+const formatTime = (date) => {
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export function UserDashBoard() {
+  const navigate = useNavigate();
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
-      fontFamily: 'Arial, sans-serif',
-    }}>
+    <div className="min-h-screen bg-gray-50 font-sans">
       <Header userRole="Student" />
-      <main style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '40px 20px',
-      }}>
-        <h1 style={{
-          fontSize: '2.5rem',
-          textAlign: 'center',
-          marginBottom: '40px',
-          color: '#2c3e50',
-          animation: 'fadeInDown 0.7s ease-out',
-        }}>
-          Welcome to Your Laboratory Assessment Portal
-        </h1>
-        
-        <Card title="Getting Started">
-          <p style={{ marginBottom: '15px', lineHeight: '1.6' }}>
-            Welcome to the Modernized Laboratory Assessment platform. Here's what you need to know to get started:
-          </p>
-          <ul style={{ paddingLeft: '0', listStyleType: 'none' }}>
-            <ListItem>Access your assigned lab tests from the Scheduled tests section</ListItem>
-            <ListItem>Use the online text editor to write and submit your code</ListItem>
-            <ListItem>Receive immediate feedback through automated test cases</ListItem>
-            <ListItem>You have one chance to revise your answers after initial submission</ListItem>
-            <ListItem>Review your past submissions and teacher feedback in the submissions section</ListItem>
-          </ul>
-        </Card>
 
-        <Card title="How to Take a Test">
-          <ol style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 0.5s ease-out' }}>Select an available test from your Scheduled Page</li>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 0.6s ease-out' }}>Read all instructions carefully before starting</li>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 0.7s ease-out' }}>Write your code in the provided online text editor</li>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 0.8s ease-out' }}>Run your code against the provided test cases</li>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 0.9s ease-out' }}>Submit your final answer before the deadline</li>
-            <li style={{ marginBottom: '10px', animation: 'slideIn 1s ease-out' }}>Review feedback and make improvements if allowed</li>
-          </ol>
-        </Card>
+      <div className="flex min-h-screen justify-center items-center py-16">
+        <main className="container mx-auto px-4 py-8">
+          <h1 className="mb-28 text-5xl text-center font-bold text-gray-800">
+            <ReactTyped
+              strings={["Master Your Lab Assessments"]}
+              typeSpeed={40}
+              backSpeed={40}
+              className="text-green-600"
+            />
+          </h1>
 
-        <Card title="Tips for Success">
-          <ul style={{ paddingLeft: '0', listStyleType: 'none' }}>
-            <ListItem>Familiarize yourself with the online text editor features</ListItem>
-            <ListItem>Test your code thoroughly before final submission</ListItem>
-            <ListItem>Pay close attention to the automated feedback</ListItem>
-            <ListItem>Reach out to your instructor if you need clarification</ListItem>
-            <ListItem>Review your past submissions to learn from previous mistakes</ListItem>
-          </ul>
-        </Card>
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card title="Getting Started">
+              <p className="mb-4 text-gray-600">
+                Welcome to your interactive programming assessment platform!
+                We've designed this space to help you demonstrate your coding
+                skills effectively. Here's how to make the most of it:
+              </p>
+              <ul className="space-y-2 text-gray-700">
+                <ListItem>
+                  Access all your scheduled programming assignments from the
+                  'Tests' section
+                </ListItem>
+                <ListItem>
+                  Write and debug code in our professional-grade editor with
+                  advanced syntax highlighting
+                </ListItem>
+                <ListItem>
+                  Receive real-time feedback through our automated code
+                  evaluation system
+                </ListItem>
+                <ListItem>
+                  Monitor your growth with comprehensive performance insights
+                  and assessment history
+                </ListItem>
+              </ul>
+            </Card>
 
-        <Card title="Important Reminders">
-          <ul style={{ paddingLeft: '0', listStyleType: 'none' }}>
-            <ListItem>Adhere to the academic integrity policy at all times</ListItem>
-            <ListItem>Submit your work before the specified deadlines</ListItem>
-            <ListItem>Regularly check for new assignments and feedback</ListItem>
-            <ListItem>Keep your login credentials secure and confidential</ListItem>
-          </ul>
-        </Card>
-      </main>
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+            <Card title="Assessment Guide">
+              <ol className="space-y-2 text-gray-700">
+                <ListItem>
+                  Select your assigned test from the personalized dashboard
+                </ListItem>
+                <ListItem>
+                  Carefully analyze the problem requirements and constraints
+                </ListItem>
+                <ListItem>
+                  Develop your solution using our feature-rich coding
+                  environment
+                </ListItem>
+                <ListItem>
+                  Test your code against provided test cases for accuracy
+                </ListItem>
+                <ListItem>
+                  Complete and submit your work within the allocated time
+                </ListItem>
+              </ol>
+            </Card>
+          </div>
+
+          <div className="flex justify-center">
+            <div className="m-8 w-1/2">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800 capitalize mb-2 sm:mb-0">
+                    Try a practice assessment:
+                  </h2>
+                  <button
+                    onClick={() => {
+                      navigate("/demotest");
+                    }}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 w-full sm:w-auto mt-2 sm:mt-0"
+                  >
+                    Begin Practice
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-4 mt-4 text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-5 w-5" />
+                    <span>{new Date().toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-5 w-5" />
+                    <span>{formatTime(new Date())}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <Footer />
     </div>
   );
 }
-
