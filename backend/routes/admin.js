@@ -16,6 +16,7 @@ const jwt = require("jsonwebtoken");
 const adminMiddleWare = require("../middlewares/admin.js");
 const { DateTime } = require("luxon");
 const { generateOTP, sendOTPEmail } = require("../utils/email.js");
+const test = require("./adminTest.js");
 
 const adminSignUpSchema = z.object({
   username: z.string(),
@@ -28,6 +29,8 @@ const adminSignInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
+
+router.use("/test", test);
 
 //Sign Up route
 router.post("/signup/init", async (req, res) => {

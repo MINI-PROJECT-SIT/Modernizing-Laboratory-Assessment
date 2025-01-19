@@ -35,7 +35,7 @@ export function Results() {
   }, []);
 
   const TableHeading = ({ text }) => (
-    <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+    <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
       {text}
     </th>
   );

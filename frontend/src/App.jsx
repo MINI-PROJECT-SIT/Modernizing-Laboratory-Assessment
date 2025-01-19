@@ -12,6 +12,7 @@ import AuthPage from "./pages/AuthPage";
 import { AdminDashBoard } from "./pages/AdminDashBoard";
 import ScheduleTest from "./pages/ScheduleTest";
 import CreateCourse from "./pages/CreateCourse";
+import { Evaluate } from "./pages/Evaluate";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashBoard />} />
           <Route path="/admin/tests" element={<ScheduleTest />} />
           <Route path="/admin/course" element={<CreateCourse />} />
+          <Route path="/admin/evaluate" element={<Evaluate />} />
         </Routes>
       </BrowserRouter>
     </RecoilRoot>
