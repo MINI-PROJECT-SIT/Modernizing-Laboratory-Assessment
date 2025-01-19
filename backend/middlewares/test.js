@@ -20,6 +20,22 @@ const testMiddleWare = async (req, res, next) => {
         .json({ error: "Invalid scheduledOn format in database" });
     }
 
+    const userId = req.userId;
+    const result = await Result.findOne({ testId, studentId: userId });
+
+    if (!result) {
+      return res.status(404).json({
+        error: "No test result found for this user.",
+      });
+    }
+
+    if (result.isFinished) {
+      return res.status(403).json({
+        error:
+          "You have already completed this test and cannot resubmit or rerun it.",
+      });
+    }
+
     const scheduledStart = DateTime.fromISO(test.scheduledOn, {
       zone: "Asia/Kolkata",
     });

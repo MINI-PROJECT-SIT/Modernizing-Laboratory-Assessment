@@ -6,7 +6,7 @@ const userMiddleWare = require("../middlewares/user");
 const { Test, Course, Question, Result, Viva } = require("../db");
 const z = require("zod");
 const changeofquestionMiddleware = require("../middlewares/changeOfQuestion");
-
+const demo = require("./demo");
 const runSchema = z.object({
   questionId: z.string(),
   language: z.string(),
@@ -25,6 +25,8 @@ const submitSchema = z.object({
   codeLength: z.number(),
   keyStrokeCount: z.number(),
 });
+
+router.use("/demo", demo);
 
 router.get(
   "/:testId/question",
@@ -501,5 +503,42 @@ router.post(
     }
   }
 );
+
+router.post("/:testId/finish", userMiddleWare, async (req, res) => {
+  try {
+    const { testId } = req.params;
+    const userId = req.userId;
+
+    const test = await Test.findById(testId);
+    if (!test) {
+      return res.status(404).json({ error: "Test not found." });
+    }
+
+    const result = await Result.findOne({ testId, studentId: userId });
+
+    if (!result) {
+      return res.status(404).json({ error: "No result found for this user." });
+    }
+
+    if (result.isFinished) {
+      return res.status(200).json({
+        message: "Test for this user has already been completed.",
+      });
+    }
+
+    result.isFinished = true;
+    await result.save();
+
+    res.status(200).json({
+      message: "Test marked as completed successfully for this user.",
+      testId: test._id,
+      userId: userId,
+      completedOn: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error finishing the test for user:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router;
