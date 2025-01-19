@@ -102,7 +102,7 @@ const demoResult = new mongoose.Schema({
   course: { type: String },
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Result" },
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
   codingScore: { type: Number, required: true },
   vivaScore: { type: Number, required: true },
   code: { type: String },
@@ -114,7 +114,7 @@ const demoResult = new mongoose.Schema({
 const resultSchema = new mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Result" },
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
   codingScore: { type: Number, required: true },
   vivaScore: { type: Number, required: true },
   code: { type: String },

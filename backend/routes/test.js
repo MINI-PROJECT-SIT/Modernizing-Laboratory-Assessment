@@ -174,6 +174,7 @@ router.post(
             studentId,
             codingScore: 0,
             vivaScore: 0,
+            code,
             isCheated: true,
           });
           await result.save();
@@ -223,13 +224,14 @@ router.post(
       let codingScore = 0;
       if (allPassed) {
         codingScore = 10;
-      } else if (partialPassed > 0) {
+      } else if (partialPassed > hiddenTestCases.length / 2) {
         codingScore = 5;
       }
 
       if (existingResult) {
         if (existingResult.codingScore !== 10) {
           existingResult.codingScore = codingScore;
+          existingResult.code = code;
           await existingResult.save();
           return res.status(200).json({
             results,
@@ -251,6 +253,7 @@ router.post(
           studentId,
           codingScore,
           vivaScore: 0,
+          code,
         });
         await result.save();
         return res.status(200).json({
@@ -396,6 +399,7 @@ router.post(
           testId,
           studentId,
           vivaScore: 0,
+          codingScore: 0,
         });
       }
 
@@ -523,7 +527,13 @@ router.post("/:testId/finish", userMiddleWare, async (req, res) => {
     if (result.isFinished) {
       return res.status(200).json({
         message: "Test for this user has already been completed.",
+        result,
       });
+    }
+
+    if (result.optedChangeOfQuestion) {
+      result.codingScore =
+        result.codingScore - 3 > 0 ? result.codingScore - 3 : 0;
     }
 
     result.isFinished = true;
@@ -531,12 +541,41 @@ router.post("/:testId/finish", userMiddleWare, async (req, res) => {
 
     res.status(200).json({
       message: "Test marked as completed successfully for this user.",
-      testId: test._id,
-      userId: userId,
-      completedOn: new Date().toISOString(),
+      result,
     });
   } catch (error) {
     console.error("Error finishing the test for user:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:testId/result", userMiddleWare, async (req, res) => {
+  try {
+    const { testId } = req.params;
+    const userId = req.userId;
+
+    const test = await Test.findById(testId);
+    if (!test) {
+      return res.status(404).json({ error: "Test not found." });
+    }
+
+    const result = await Result.findOne({ testId, studentId: userId });
+
+    if (!result) {
+      return res.status(404).json({ error: "No result found for this user." });
+    }
+
+    if (result.isFinished) {
+      return res.status(200).json({
+        message: "Test for this user has already been completed.",
+        result,
+      });
+    }
+
+    res.status(200).json({
+      message: "Test is not yet finished.",
+    });
+  } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });

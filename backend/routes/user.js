@@ -232,9 +232,7 @@ router.get("/results", userMiddleWare, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const results = await Result.find({ studentId: userId })
-      .populate("testId")
-      .populate("questionId");
+    const results = await Result.find({ studentId: userId });
 
     if (results.length === 0) {
       return res
@@ -242,7 +240,22 @@ router.get("/results", userMiddleWare, async (req, res) => {
         .json({ message: "No results found for this user" });
     }
 
-    res.status(200).json({ results });
+    const resultsWithCourseInfo = await Promise.all(
+      results.map(async (result) => {
+        const test = await Test.findById(result.testId);
+        if (!test) {
+          throw new Error(`Test with ID ${result.testId} not found`);
+        }
+
+        return {
+          ...result.toObject(),
+          course: test.course,
+          scheduledOn: test.scheduledOn,
+        };
+      })
+    );
+
+    res.status(200).json({ results: resultsWithCourseInfo });
   } catch (err) {
     console.error("Error fetching results:", err);
     res.status(500).json({ message: "Internal server error" });

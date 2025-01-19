@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Split } from "@geoffcox/react-splitter";
-import { useParams } from "react-router-dom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useNavigate, useParams } from "react-router-dom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { useTestState } from "../hooks/useTestState";
 import { CodeEditorSidebar } from "../components/CodeEditorSidebar";
@@ -17,6 +17,7 @@ import {
   findingQuestionAtom,
   isCheatedAtom,
   sideBarAtom,
+  testResultAtom,
 } from "../store/atoms/atoms";
 import { CaughtCheating } from "../components/CaughtCheating";
 
@@ -26,10 +27,17 @@ export function CodeEditor() {
   const error403 = useRecoilValue(erro403Atom);
   const isCheated = useRecoilValue(isCheatedAtom);
   const isFinding = useRecoilValue(findingQuestionAtom);
+  const navigate = useNavigate();
+
+  const handleFinish = async () => {
+    await handleFinishTest({ navigate, id, setTestResult });
+  };
 
   const { status, isLoading, hasError } = useTestState(id);
 
   const [isSidebarOpen, setIsSidebarOpen] = useRecoilState(sideBarAtom);
+
+  const setTestResult = useSetRecoilState(testResultAtom);
 
   if (isLoading || isFinding) {
     return <CodeEditorSkeleton />;
@@ -46,7 +54,7 @@ export function CodeEditor() {
     <div className="h-screen bg-white text-black overflow-hidden">
       <CodeEditorSidebar
         testId={id}
-        onFinishTest={handleFinishTest}
+        onFinishTest={handleFinish}
         isOpen={isSidebarOpen}
         onToggle={toggleSidebar}
       />

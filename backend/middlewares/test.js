@@ -1,4 +1,4 @@
-const { Test } = require("../db/index.js");
+const { Test, Result } = require("../db/index.js");
 const { DateTime } = require("luxon");
 
 const testMiddleWare = async (req, res, next) => {
@@ -23,14 +23,9 @@ const testMiddleWare = async (req, res, next) => {
     const userId = req.userId;
     const result = await Result.findOne({ testId, studentId: userId });
 
-    if (!result) {
-      return res.status(404).json({
-        error: "No test result found for this user.",
-      });
-    }
-
-    if (result.isFinished) {
+    if (result && result.isFinished) {
       return res.status(403).json({
+        result,
         error:
           "You have already completed this test and cannot resubmit or rerun it.",
       });

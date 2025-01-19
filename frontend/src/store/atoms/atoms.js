@@ -74,3 +74,8 @@ export const sideBarAtom = atom({
   key: "sideBarAtom",
   default: false,
 });
+
+export const testResultAtom = atom({
+  key: "testResultAtom",
+  default: null,
+});

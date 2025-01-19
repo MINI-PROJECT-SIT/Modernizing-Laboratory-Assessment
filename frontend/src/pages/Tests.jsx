@@ -6,6 +6,7 @@ import { BACKEND_URL } from "../../config";
 import { Header } from "../components/Header";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { TestsSkeleton } from "../components/TestsSkeleton";
+import { formatDateTime } from "../utilities/formateDateTime";
 
 export function Tests() {
   const [tests, setTests] = useState([]);
@@ -36,22 +37,6 @@ export function Tests() {
 
     fetchTests();
   }, []);
-
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return {
-      date: date.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      time: date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
-    };
-  };
 
   if (loading) {
     return <TestsSkeleton />;

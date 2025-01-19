@@ -1,4 +1,8 @@
-import { useRecoilValueLoadable, useRecoilState } from "recoil";
+import {
+  useRecoilValueLoadable,
+  useRecoilState,
+  useSetRecoilState,
+} from "recoil";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
@@ -17,7 +21,7 @@ import { VivaSkeleton } from "../components/VivaSkeleton";
 import { handleFinishTest } from "../utilities/finishTest";
 import { Progress } from "../components/Progress";
 import { handleVivaSubmit } from "../utilities/handleVivaSubmit";
-import { erro403Atom } from "../store/atoms/atoms";
+import { erro403Atom, testResultAtom } from "../store/atoms/atoms";
 
 export function Viva() {
   const { id } = useParams();
@@ -37,6 +41,8 @@ export function Viva() {
   );
 
   const [error403, set403Error] = useRecoilState(erro403Atom);
+
+  const setTestResult = useSetRecoilState(testResultAtom);
 
   const currentQuestion =
     currentQuestionLoadable.state === "hasValue"
@@ -84,6 +90,10 @@ export function Viva() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleFinish = async () => {
+    await handleFinishTest({ navigate, id, setTestResult });
+  };
+
   const isLastQuestion =
     currentIndex ===
     (totalQuestionsLoadable.state === "hasValue"
@@ -101,7 +111,7 @@ export function Viva() {
     <div className="h-screen bg-white text-black overflow-hidden">
       <CodeEditorSidebar
         testId={id}
-        onFinishTest={handleFinishTest}
+        onFinishTest={handleFinish}
         isOpen={isSidebarOpen}
         onToggle={toggleSidebar}
       />
@@ -186,7 +196,7 @@ export function Viva() {
                     </div>
                   </div>
                   <button
-                    onClick={handleFinishTest}
+                    onClick={handleFinish}
                     className="py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
                   >
                     Finish Test
