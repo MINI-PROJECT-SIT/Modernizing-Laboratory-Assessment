@@ -6,56 +6,36 @@ mongoose.connect(mongoUrl);
 
 //User Schema
 const userSchema = new Schema({
-  username: {
+  username: { type: String, required: true },
+  email: {
     type: String,
     required: true,
+    match: [
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.ac\.in$/,
+      "Please enter a valid college email address ending with .ac.in",
+    ],
   },
-  usn: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  batch: {
-    type: String,
-    required: true,
-  },
-  year: {
-    type: String,
-    required: true,
-  },
-  branch: {
-    type: String,
-    required: true,
-  },
+  usn: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  batch: { type: String, required: true },
+  year: { type: String, required: true },
+  branch: { type: String, required: true },
 });
 
 //Admin Schema
 const adminSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-  },
+  username: { type: String, required: true },
   email: {
     type: String,
     required: true,
     unique: true,
     match: [
-      /^[a-zA-Z0-9._%+-]+@sit\.ac\.in$/,
-      "Please enter a valid SIT email address.",
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.ac\.in$/,
+      "Please enter a valid college email address ending with .ac.in",
     ],
   },
-  password: {
-    type: String,
-    required: true,
-  },
-  department: {
-    type: String,
-    required: true,
-  },
+  password: { type: String, required: true },
+  department: { type: String, required: true },
 });
 
 const QuestionSchema = new mongoose.Schema({
@@ -143,6 +123,31 @@ const resultSchema = new mongoose.Schema({
   optedChangeOfQuestion: { type: Boolean, default: false },
 });
 
+const otpSchema = new mongoose.Schema({
+  email: String,
+  otp: String,
+  createdAt: { type: Date, expires: 300, default: Date.now },
+});
+
+const pendingUserSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  usn: { type: String, required: true, unique: true },
+  batch: { type: String, required: true },
+  year: { type: String, required: true },
+  branch: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now, expires: 300 },
+});
+
+const pendingAdminSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  department: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now, expires: 300 },
+});
+
 const User = mongoose.model("User", userSchema);
 const Admin = mongoose.model("Admin", adminSchema);
 const Question = mongoose.model("Question", QuestionSchema);
@@ -151,6 +156,10 @@ const Course = mongoose.model("Course", courseSchema);
 const Viva = mongoose.model("Viva", vivaSchema);
 const Result = mongoose.model("Result", resultSchema);
 const DemoResult = mongoose.model("DemoResult", demoResult);
+const OTP = mongoose.model("OTP", otpSchema);
+const PendingUser = mongoose.model("PendingUser", pendingUserSchema);
+const PendingAdmin = mongoose.model("PendingAdmin", pendingAdminSchema);
+
 module.exports = {
   User,
   Admin,
@@ -160,4 +169,7 @@ module.exports = {
   Viva,
   Result,
   DemoResult,
+  OTP,
+  PendingUser,
+  PendingAdmin,
 };

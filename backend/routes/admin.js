@@ -1,12 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const { Admin, Question, Test, Course, Viva } = require("../db/index.js");
+const {
+  Admin,
+  Question,
+  Test,
+  Course,
+  Viva,
+  OTP,
+  PendingAdmin,
+} = require("../db/index.js");
 const z = require("zod");
 const bcrypt = require("bcrypt");
 const { JWT_SECRET, saltRounds } = require("../config");
 const jwt = require("jsonwebtoken");
 const adminMiddleWare = require("../middlewares/admin.js");
 const { DateTime } = require("luxon");
+const { generateOTP, sendOTPEmail } = require("../utils/email.js");
 
 const adminSignUpSchema = z.object({
   username: z.string(),
@@ -21,38 +30,85 @@ const adminSignInSchema = z.object({
 });
 
 //Sign Up route
-router.post("/signup", async (req, res) => {
+router.post("/signup/init", async (req, res) => {
   try {
     const { username, email, password, department } = adminSignUpSchema.parse(
       req.body
     );
-    const existingAdmin = await Admin.findOne({ email });
+
+    const existingAdmin = await Admin.findOne({ email: email.toLowerCase() });
     if (existingAdmin) {
       return res.status(400).json({ message: "Admin account already exists" });
     }
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const newAdmin = new Admin({
-      username: username.toLowerCase(),
-      email,
-      password: hashedPassword,
-      department: department.toLowerCase(),
-    });
-    await newAdmin.save();
-    const userId = newAdmin._id;
-    const token = jwt.sign({ userId }, JWT_SECRET);
-    res
-      .status(200)
-      .json({
-        message: "Admin account created successfully",
-        token: token,
-        name: username,
-      });
+
+    const otp = generateOTP();
+    await OTP.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { otp },
+      { upsert: true, new: true }
+    );
+
+    await sendOTPEmail(email, otp);
+
+    await PendingAdmin.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      {
+        username: username.toLowerCase(),
+        email: email.toLowerCase(),
+        password,
+        department: department.toLowerCase(),
+      },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: "OTP sent successfully" });
   } catch (err) {
-    console.log("Error", err);
+    console.error("Error", err);
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.errors });
     }
+    res.status(500).json({ message: "Internal server error", err });
+  }
+});
 
+router.post("/signup/verify", async (req, res) => {
+  try {
+    const { otp, email } = req.body;
+
+    const pendingAdmin = await PendingAdmin.findOne({
+      email: email.toLowerCase(),
+    });
+    if (!pendingAdmin) {
+      return res.status(400).json({ message: "No pending signup found" });
+    }
+
+    const otpRecord = await OTP.findOne({ email: email.toLowerCase(), otp });
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(pendingAdmin.password, saltRounds);
+    const newAdmin = new Admin({
+      username: pendingAdmin.username,
+      email: pendingAdmin.email,
+      password: hashedPassword,
+      department: pendingAdmin.department,
+    });
+
+    await newAdmin.save();
+    await OTP.deleteOne({ email: pendingAdmin.email });
+    await PendingAdmin.deleteOne({ email: pendingAdmin.email });
+
+    const adminId = newAdmin._id;
+    const token = jwt.sign({ adminId }, JWT_SECRET);
+
+    res.status(200).json({
+      message: "Admin account created successfully",
+      token: token,
+      name: pendingAdmin.username,
+    });
+  } catch (err) {
+    console.error("Error", err);
     res.status(500).json({ message: "Internal server error", err });
   }
 });

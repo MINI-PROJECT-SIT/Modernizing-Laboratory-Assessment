@@ -4,7 +4,7 @@ const { executeCode } = require("../execution/execute");
 const userMiddleWare = require("../middlewares/user");
 const { Test, Course, Question, DemoResult, Viva } = require("../db");
 const z = require("zod");
-const preventCompletedTestMiddleware = require("../middlewares/completedTest");
+
 const runSchema = z.object({
   questionId: z.string(),
   language: z.string(),
@@ -23,6 +23,7 @@ const submitSchema = z.object({
   codeLength: z.number(),
   keyStrokeCount: z.number(),
 });
+
 const preventFinishedMiddleware = async (req, res, next) => {
   try {
     const demoTest = await Test.findOne({ course: "demo" });
@@ -50,6 +51,7 @@ const preventFinishedMiddleware = async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 router.get(
   "/question",
   userMiddleWare,

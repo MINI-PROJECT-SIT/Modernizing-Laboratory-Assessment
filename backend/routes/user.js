@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { User, Test, DemoResult, Result } = require("../db/index.js");
+const {
+  User,
+  Test,
+  DemoResult,
+  Result,
+  OTP,
+  PendingUser,
+} = require("../db/index.js");
 const jwt = require("jsonwebtoken");
 const z = require("zod");
 const bcrypt = require("bcrypt");
@@ -8,15 +15,25 @@ const { JWT_SECRET, saltRounds } = require("../config.js");
 const userMiddleWare = require("../middlewares/user.js");
 const test = require("./test.js");
 const { DateTime } = require("luxon");
+const { generateOTP, sendOTPEmail } = require("../utils/email.js");
 
-const userSignupSchema = z.object({
-  username: z.string(),
-  usn: z.string().length(10, "USN should be exactly 10 characters long"),
-  password: z.string().min(6, "Enter password of minimum length 6"),
-  batch: z.string().min(1, "Batch is required"),
-  year: z.string().min(1, "Year is required"),
-  branch: z.string().min(1, "Branch is required"),
-});
+const userSignupSchema = z
+  .object({
+    username: z.string(),
+    usn: z.string().length(10, "USN should be exactly 10 characters long"),
+    email: z.string().email("Invalid email format"),
+    password: z.string().min(6, "Enter password of minimum length 6"),
+    batch: z.string().min(1, "Batch is required"),
+    year: z.string().min(1, "Year is required"),
+    branch: z.string().min(1, "Branch is required"),
+  })
+  .refine(
+    (data) => data.email.toLowerCase().startsWith(data.usn.toLowerCase()),
+    {
+      message: "Email must start with your USN",
+      path: ["email"],
+    }
+  );
 
 const userSignInSchema = z.object({
   usn: z.string().min(10, "Username is required"),
@@ -26,25 +43,15 @@ const userSignInSchema = z.object({
 router.use("/test", test);
 
 //Sign Up route
-router.post("/signup", async (req, res) => {
+router.post("/signup/init", async (req, res) => {
   try {
-    const { username, usn, password, batch, year, branch } =
+    const { username, email, usn, password, batch, year, branch } =
       userSignupSchema.parse(req.body);
 
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ usn: usn.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const newUser = new User({
-      username: username.toLowerCase(),
-      password: hashedPassword,
-      usn: usn.toLowerCase(),
-      batch: batch.toLowerCase(),
-      year,
-      branch: branch.toLowerCase(),
-    });
-    await newUser.save();
 
     const userId = newUser._id;
     const token = jwt.sign({ userId }, JWT_SECRET);
@@ -53,11 +60,84 @@ router.post("/signup", async (req, res) => {
       token: token,
       name: username,
     });
+
+    const otp = generateOTP();
+    await OTP.findOneAndUpdate(
+      { email: email },
+      { otp },
+      { upsert: true, new: true }
+    );
+
+    await sendOTPEmail(email, otp);
+
+    await PendingUser.findOneAndUpdate(
+      { email: email },
+      {
+        username: username.toLowerCase(),
+        email,
+        password,
+        usn: usn.toLowerCase(),
+        batch: batch.toLowerCase(),
+        year,
+        branch: branch.toLowerCase(),
+      },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: "OTP sent successfully" });
   } catch (err) {
-    console.log("Error", err);
+    console.error("Error", err);
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.errors });
     }
+    res.status(500).json({ message: "Internal server error", err });
+  }
+});
+
+router.post("/signup/verify", async (req, res) => {
+  try {
+    const { otp } = req.body;
+
+    const pendingUser = await PendingUser.findOne({ email: req.body.email });
+    if (!pendingUser) {
+      return res.status(400).json({ message: "No pending signup found" });
+    }
+
+    const otpRecord = await OTP.findOne({
+      email: pendingUser.email,
+      otp,
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(pendingUser.password, saltRounds);
+
+    const newUser = new User({
+      username: pendingUser.username,
+      email: pendingUser.email,
+      password: hashedPassword,
+      usn: pendingUser.usn,
+      batch: pendingUser.batch,
+      year: pendingUser.year,
+      branch: pendingUser.branch,
+    });
+    await newUser.save();
+
+    await OTP.deleteOne({ email: pendingUser.email });
+    await PendingUser.deleteOne({ email: pendingUser.email });
+
+    const userId = newUser._id;
+    const token = jwt.sign({ userId }, JWT_SECRET);
+
+    res.status(200).json({
+      message: "User created successfully",
+      token: token,
+      name: pendingUser.username,
+    });
+  } catch (err) {
+    console.error("Error", err);
     res.status(500).json({ message: "Internal server error", err });
   }
 });
