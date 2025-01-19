@@ -53,14 +53,6 @@ router.post("/signup/init", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const userId = newUser._id;
-    const token = jwt.sign({ userId }, JWT_SECRET);
-    res.status(200).json({
-      message: "User created successfully",
-      token: token,
-      name: username,
-    });
-
     const otp = generateOTP();
     await OTP.findOneAndUpdate(
       { email: email },

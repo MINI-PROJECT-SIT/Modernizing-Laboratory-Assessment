@@ -266,7 +266,7 @@ export default function UserSignUp() {
                   ref={(input) => (inputRefs.current[index] = input)}
                   onChange={(e) => handleChange(e.target, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="w-12 h-12 text-2xl text-center bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 ease-in-out"
+                  className="w-12 h-12 text-2xl text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 ease-in-out"
                 />
               ))}
             </div>

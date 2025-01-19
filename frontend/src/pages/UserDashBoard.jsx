@@ -98,7 +98,7 @@ export function UserDashBoard() {
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-xl font-semibold text-gray-800 capitalize mb-2 sm:mb-0">
-                    Try a practice assessment:
+                    Take a practice assessment:
                   </h2>
                   <button
                     onClick={() => {
