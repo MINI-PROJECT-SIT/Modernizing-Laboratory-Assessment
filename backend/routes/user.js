@@ -62,12 +62,14 @@ router.post("/signup/init", async (req, res) => {
 
     await sendOTPEmail(email, otp);
 
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     await PendingUser.findOneAndUpdate(
       { email: email },
       {
         username: username.toLowerCase(),
         email,
-        password,
+        password: hashedPassword,
         usn: usn.toLowerCase(),
         batch: batch.toLowerCase(),
         year,
@@ -104,12 +106,10 @@ router.post("/signup/verify", async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    const hashedPassword = await bcrypt.hash(pendingUser.password, saltRounds);
-
     const newUser = new User({
       username: pendingUser.username,
       email: pendingUser.email,
-      password: hashedPassword,
+      password: pendingUser.password,
       usn: pendingUser.usn,
       batch: pendingUser.batch,
       year: pendingUser.year,
