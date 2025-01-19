@@ -51,12 +51,16 @@ export default function AuthPage() {
           </div>
           <div className="px-6 py-6 sm:px-10">
             <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
-              {mode === "user" ? "Student" : "Teacher"} Login
+              {mode === "user" ? "Student" : "Teacher"}{" "}
+              {action[0].toUpperCase() + action.substring(1)}
             </h2>
             <div className="mt-8">{renderForm()}</div>
             <div className="mt-6 text-center">
               <button
-                onClick={() => setMode(mode === "user" ? "admin" : "user")}
+                onClick={() => {
+                  setMode(mode === "user" ? "admin" : "user");
+                  setAction("signin");
+                }}
                 className="text-sm font-medium text-green-600 hover:text-green-500 transition-colors duration-200"
               >
                 {mode === "user" ? "Login as Teacher" : "Login as Student"}

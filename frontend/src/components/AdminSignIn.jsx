@@ -4,6 +4,7 @@ import { LoginButton } from "./LoginButton";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
+import { validateAdminSignInForm } from "../utilities/validate";
 
 const INITIAL_FORM_STATE = {
   email: "",
@@ -20,6 +21,15 @@ export default function AdminSignIn() {
     e.preventDefault();
     setLoading(true);
     try {
+      const notValid = validateAdminSignInForm(formData);
+
+      if (notValid) {
+        setErrors((prev) => ({
+          ...prev,
+          submit: notValid,
+        }));
+        return;
+      }
       const response = await axios.post(
         `${BACKEND_URL}/api/v1/admin/signin`,
         formData

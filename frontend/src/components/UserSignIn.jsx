@@ -4,13 +4,14 @@ import { LoginButton } from "./LoginButton";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
+import { validateUserSignInForm } from "../utilities/validate";
 
 const INITIAL_FORM_STATE = {
   password: "",
   usn: "",
 };
 
-export default function UserSignUp() {
+export default function UserSignIn() {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,14 @@ export default function UserSignUp() {
     e.preventDefault();
     setLoading(true);
     try {
+      const notValid = validateUserSignInForm(formData);
+      if (notValid) {
+        setErrors((prev) => ({
+          ...prev,
+          submit: notValid,
+        }));
+        return;
+      }
       const response = await axios.post(
         `${BACKEND_URL}/api/v2/user/signin`,
         formData

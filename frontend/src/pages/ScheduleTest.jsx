@@ -10,6 +10,7 @@ import { BACKEND_URL } from "../../config";
 import { ScheduleTestSkeleton } from "../components/ScheduleTestSkeleton";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { BRANCHES } from "../utilities/branches";
 
 const ScheduleTest = () => {
   const [courses, setCourses] = useState([]);
@@ -200,14 +201,29 @@ const ScheduleTest = () => {
                 </select>
               </div>
 
-              <InputBox
-                text="Branch"
-                type="text"
-                value={formData.branch}
-                setter={(value) =>
-                  setFormData((prev) => ({ ...prev, branch: value }))
-                }
-              />
+              <div>
+                <label
+                  htmlFor="branch"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Branch
+                </label>
+                <select
+                  id="branch"
+                  value={formData.branch}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, branch: e.target.value }))
+                  }
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-transparent border-b"
+                >
+                  <option value="">Select your branch</option>
+                  {BRANCHES.map((branch) => (
+                    <option key={branch} value={branch}>
+                      {branch}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <InputBox
@@ -219,14 +235,31 @@ const ScheduleTest = () => {
                   }
                 />
 
-                <InputBox
-                  text="Year"
-                  type="text"
-                  value={formData.year}
-                  setter={(value) =>
-                    setFormData((prev) => ({ ...prev, year: value }))
-                  }
-                />
+                <div>
+                  <label
+                    htmlFor="year"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Year
+                  </label>
+                  <select
+                    id="year"
+                    value={formData.year}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        year: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-transparent border-b"
+                  >
+                    <option value="">Select year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -239,7 +272,7 @@ const ScheduleTest = () => {
 
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MobileDateTimePicker
-                    defaultValue={dayjs("2025-01-12")}
+                    defaultValue={dayjs()}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
