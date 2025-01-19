@@ -23,11 +23,37 @@ const submitSchema = z.object({
   codeLength: z.number(),
   keyStrokeCount: z.number(),
 });
+const preventFinishedMiddleware = async (req, res, next) => {
+  try {
+    const demoTest = await Test.findOne({ course: "demo" });
 
+    if (!demoTest) {
+      return res.status(404).json({ error: "Demo test not found." });
+    }
+
+    const userId = req.userId;
+    const result = await DemoResult.findOne({
+      testId: demoTest._id,
+      studentId: userId,
+    });
+
+    if (result && result.isFinished) {
+      return res.status(403).json({
+        error:
+          "You have already completed the demo test and cannot access this route.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error in preventFinishedMiddleware:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 router.get(
   "/question",
   userMiddleWare,
-
+  preventFinishedMiddleware,
   async (req, res) => {
     try {
       const demoTest = await Test.findOne({ course: "demo" }).populate(
@@ -68,40 +94,45 @@ router.get(
   }
 );
 
-router.post("/run", userMiddleWare, async (req, res) => {
-  try {
-    const { questionId, language, version, code, testcase } = runSchema.parse(
-      req.body
-    );
+router.post(
+  "/run",
+  userMiddleWare,
+  preventFinishedMiddleware,
+  async (req, res) => {
+    try {
+      const { questionId, language, version, code, testcase } = runSchema.parse(
+        req.body
+      );
 
-    const demoTest = await Test.findOne({ course: "demo" }).populate(
-      "courseId"
-    );
-    if (!demoTest) {
-      return res.status(404).json({ error: "Demo test not found." });
+      const demoTest = await Test.findOne({ course: "demo" }).populate(
+        "courseId"
+      );
+      if (!demoTest) {
+        return res.status(404).json({ error: "Demo test not found." });
+      }
+
+      const question = await Question.findById(questionId);
+      if (!question) {
+        return res.status(404).json({ error: "Question not found." });
+      }
+
+      const result = await executeCode(language, version, code, testcase.input);
+      res.status(200).json({
+        output: result.run.stdout || "",
+        error: result.run.stderr || "",
+        testCase: testcase,
+      });
+    } catch (error) {
+      console.error("Error in /run endpoint:", error.message);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const question = await Question.findById(questionId);
-    if (!question) {
-      return res.status(404).json({ error: "Question not found." });
-    }
-
-    const result = await executeCode(language, version, code, testcase.input);
-    res.status(200).json({
-      output: result.run.stdout || "",
-      error: result.run.stderr || "",
-      testCase: testcase,
-    });
-  } catch (error) {
-    console.error("Error in /run endpoint:", error.message);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
+);
 
 router.post(
   "/submit",
   userMiddleWare,
-
+  preventFinishedMiddleware,
   async (req, res) => {
     try {
       const {
@@ -244,7 +275,7 @@ router.post(
 router.get(
   "/viva-questions",
   userMiddleWare,
-
+  preventFinishedMiddleware,
   async (req, res) => {
     try {
       const demoTest = await Test.findOne({ course: "demo" }).populate(
@@ -302,7 +333,7 @@ router.get(
 router.post(
   "/viva-submit",
   userMiddleWare,
-
+  preventFinishedMiddleware,
   async (req, res) => {
     try {
       const { questionId, answer } = req.body;
@@ -363,35 +394,50 @@ router.post(
   }
 );
 
-router.post("/finish", userMiddleWare, async (req, res) => {
-  try {
-    const demoTest = await Test.findOne({ course: "demo" });
+router.post(
+  "/finish",
+  userMiddleWare,
+  preventFinishedMiddleware,
+  async (req, res) => {
+    try {
+      const demoTest = await Test.findOne({ course: "demo" });
 
-    if (!demoTest) {
-      return res.status(404).json({ error: "Demo test not found." });
-    }
+      if (!demoTest) {
+        return res.status(404).json({ error: "Demo test not found." });
+      }
 
-    if (demoTest.isCompleted) {
-      return res.status(200).json({
-        message: "Demo test has already been completed.",
+      const userId = req.userId;
+      const result = await DemoResult.findOne({
+        testId: demoTest._id,
+        studentId: userId,
       });
-    }
 
-    const results = await DemoResult.find({ testId: demoTest._id });
+      if (!result) {
+        return res
+          .status(404)
+          .json({ error: "No demo test result found for this user." });
+      }
 
-    for (const result of results) {
+      if (result.isFinished) {
+        return res.status(200).json({
+          message: "Demo test for this user has already been completed.",
+        });
+      }
+
       result.isFinished = true;
       await result.save();
+
+      res.status(200).json({
+        message: "Demo test marked as completed successfully for this user.",
+        testId: demoTest._id,
+        userId: userId,
+        completedOn: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error finishing the demo test for user:", error.message);
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.status(200).json({
-      message: "Demo test marked as completed successfully.",
-      testId: demoTest._id,
-      completedOn: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Error finishing the demo test:", error.message);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
+);
 
 module.exports = router;

@@ -87,6 +87,26 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+router.get("/demo-test", userMiddleWare, async (req, res) => {
+  try {
+    const demoTest = await Test.findOne({ course: "demo" });
+
+    if (!demoTest) {
+      return res.status(404).json({ message: "Demo test not found" });
+    }
+
+    demoTest.isCompleted = false;
+    demoTest.scheduledOn = DateTime.now().setZone("Asia/Kolkata").toISO();
+
+    await demoTest.save();
+
+    res.status(200).json({ demoTest });
+  } catch (err) {
+    console.error("Error fetching demo test:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/tests", userMiddleWare, async (req, res) => {
   try {
     const userId = req.userId;
@@ -107,15 +127,8 @@ router.get("/tests", userMiddleWare, async (req, res) => {
       .sort({ scheduledOn: 1 });
 
     if (tests.length === 0) {
-      const demoTest = await Test.findOne({ course: "demo" });
-
-      if (demoTest) {
-        demoTest.scheduledOn = DateTime.now().setZone("Asia/Kolkata").toISO();
-      }
-      await demoTest.save();
       return res.status(404).json({
-        demoTest,
-        message: "There are no scheduled tests, but you can attend a demo test",
+        message: "There are no scheduled tests",
       });
     }
 
@@ -127,16 +140,8 @@ router.get("/tests", userMiddleWare, async (req, res) => {
     });
 
     if (upcomingTests.length === 0) {
-      const demoTest = await Test.findOne({ course: "demo" });
-      if (demoTest) {
-        demoTest.isCompleted = false;
-        demoTest.scheduledOn = DateTime.now().setZone("Asia/Kolkata").toISO();
-        upcomingTests.unshift(demoTest);
-      }
-
       return res.status(404).json({
-        message: "There are no upcoming tests, but you can attend a demo test",
-        tests: upcomingTests,
+        message: "There are no upcoming tests",
       });
     }
 
