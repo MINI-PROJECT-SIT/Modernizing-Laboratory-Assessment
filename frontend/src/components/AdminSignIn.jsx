@@ -38,6 +38,7 @@ export default function AdminSignIn() {
         setFormData(INITIAL_FORM_STATE);
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("name", response.data.name);
+        localStorage.setItem("userRole", "Teacher");
         navigate("/admin/dashboard");
       }
     } catch (error) {

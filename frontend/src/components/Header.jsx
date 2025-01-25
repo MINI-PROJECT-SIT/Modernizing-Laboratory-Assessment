@@ -15,6 +15,7 @@ export function Header({ userRole }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
     navigate("/");
   };
 

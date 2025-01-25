@@ -123,6 +123,7 @@ export default function UserSignUp() {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("name", response.data.name);
+        localStorage.setItem("userRole", "Student");
         setFormData(INITIAL_FORM_STATE);
         setOtp(["", "", "", "", "", ""]);
         setShowOTP(false);

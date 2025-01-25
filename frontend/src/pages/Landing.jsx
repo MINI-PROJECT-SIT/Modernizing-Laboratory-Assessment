@@ -73,6 +73,19 @@ export function Landing() {
     { name: "Team Members", ref: groupMembersRef },
   ];
 
+  const loginHandler = () => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole && localStorage.getItem("token")) {
+      if (userRole == "Teacher") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 overflow-hidden">
       <header className="bg-green-600 text-white shadow-lg fixed w-full z-50">
@@ -106,7 +119,7 @@ export function Landing() {
                 <div className="ml-3 relative">
                   <div>
                     <button
-                      onClick={() => navigate("/login")}
+                      onClick={loginHandler}
                       className="ml-4 py-2 px-4 rounded-full bg-white text-green-600 hover:bg-gray-100 transition-colors flex items-center"
                     >
                       <UserIcon className="h-5 w-5 mr-1" />
@@ -153,7 +166,7 @@ export function Landing() {
             <div className="pt-4 pb-3 border-t border-green-500">
               <div className="mt-3 px-2 space-y-1">
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={loginHandler}
                   className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-green-500 w-full text-left"
                   aria-label="Login"
                 >
@@ -189,7 +202,7 @@ export function Landing() {
                 </div>
                 <button
                   className="px-8 py-4 text-white bg-green-600 hover:bg-green-700 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                  onClick={() => navigate("/login")}
+                  onClick={loginHandler}
                   aria-label="Get Started"
                 >
                   Get Started
