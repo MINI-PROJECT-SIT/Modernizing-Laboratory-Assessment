@@ -6,6 +6,7 @@ import { formatDateTime } from "../utilities/formateDateTime";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { ResultsSkeleton } from "../components/ResultsSkeleton";
 import { TableElement } from "../components/TableElement";
+import { Footer } from "../components/Footer";
 
 export function Results() {
   const [results, setResults] = useState([]);
@@ -49,55 +50,58 @@ export function Results() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header userRole={"Student"} />
-      <div className="container mx-auto px-4 py-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Your Results
-        </h2>
+    <div>
+      <div className="min-h-screen bg-gray-50">
+        <Header userRole={"Student"} />
+        <div className="container mx-auto px-4 py-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Your Results
+          </h2>
 
-        {message ? (
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <p className="text-gray-600 text-center text-lg">{message}</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-green-500 text-white">
-                <tr>
-                  <TableHeading text={"COURSE"} />
-                  <TableHeading text={"DATE"} />
-                  <TableHeading text={"Coding Score"} />
-                  <TableHeading text={"Viva Score"} />
-                  <TableHeading text={"Total Score"} />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {results.map((result) => {
-                  const { date } = formatDateTime(result.scheduledOn);
-                  return (
-                    <tr key={result._id} className="hover:bg-gray-50">
-                      <TableElement
-                        text={
-                          result.course[0].toUpperCase() +
-                          result.course.substring(1)
-                        }
-                      />
-                      <TableElement text={date} />
+          {message ? (
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <p className="text-gray-600 text-center text-lg">{message}</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-green-500 text-white">
+                  <tr>
+                    <TableHeading text={"COURSE"} />
+                    <TableHeading text={"DATE"} />
+                    <TableHeading text={"Coding Score"} />
+                    <TableHeading text={"Viva Score"} />
+                    <TableHeading text={"Total Score"} />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {results.map((result) => {
+                    const { date } = formatDateTime(result.scheduledOn);
+                    return (
+                      <tr key={result._id} className="hover:bg-gray-50">
+                        <TableElement
+                          text={
+                            result.course[0].toUpperCase() +
+                            result.course.substring(1)
+                          }
+                        />
+                        <TableElement text={date} />
 
-                      <TableElement text={result.codingScore} />
-                      <TableElement text={result.vivaScore} />
-                      <TableElement
-                        text={result.codingScore + result.vivaScore}
-                      />
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        <TableElement text={result.codingScore} />
+                        <TableElement text={result.vivaScore} />
+                        <TableElement
+                          text={result.codingScore + result.vivaScore}
+                        />
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

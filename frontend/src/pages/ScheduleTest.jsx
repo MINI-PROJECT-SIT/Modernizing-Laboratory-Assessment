@@ -11,6 +11,7 @@ import { ScheduleTestSkeleton } from "../components/ScheduleTestSkeleton";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { BRANCHES } from "../utilities/branches";
+import { Footer } from "../components/Footer";
 
 const ScheduleTest = () => {
   const [courses, setCourses] = useState([]);
@@ -315,6 +316,7 @@ const ScheduleTest = () => {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

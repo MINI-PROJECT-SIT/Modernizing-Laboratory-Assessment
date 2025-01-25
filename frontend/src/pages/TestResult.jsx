@@ -7,6 +7,7 @@ import { BACKEND_URL } from "../../config";
 import { useParams } from "react-router-dom";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { TestResultSkeleton } from "../components/TestResultSkeleton";
+import { Footer } from "../components/Footer";
 
 export function TestResult() {
   const result = useRecoilValue(testResultAtom);
@@ -141,6 +142,7 @@ export function TestResult() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

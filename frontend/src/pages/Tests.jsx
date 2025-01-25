@@ -7,6 +7,7 @@ import { Header } from "../components/Header";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { TestsSkeleton } from "../components/TestsSkeleton";
 import { formatDateTime } from "../utilities/formateDateTime";
+import { Footer } from "../components/Footer";
 
 export function Tests() {
   const [tests, setTests] = useState([]);
@@ -47,62 +48,68 @@ export function Tests() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header userRole="Student" />
-      <div className="p-4 sm:p-6">
-        <div className="max-w-3xl mx-auto mt-10">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">
-            Upcoming Tests
-          </h1>
+    <div>
+      <div className="min-h-screen bg-gray-50">
+        <Header userRole="Student" />
+        <div className="p-4 sm:p-6">
+          <div className="max-w-3xl mx-auto mt-10">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">
+              Upcoming Tests
+            </h1>
 
-          {message ? (
-            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-              <p className="text-gray-600 text-center text-lg">{message}</p>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {tests.map((test) => {
-                const { date, time } = formatDateTime(test.scheduledOn);
-                return (
-                  <div
-                    key={test._id}
-                    className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                      <h2 className="text-xl font-semibold text-gray-800 capitalize mb-2 sm:mb-0">
-                        {test.courseId.title}
-                      </h2>
-                      <button
-                        onClick={() => {
-                          if (test.hasChangeOfQuestion) {
-                            localStorage.setItem("hasChangeOfQuestion", "true");
-                          } else {
-                            localStorage.removeItem("hasChangeOfQuestion");
-                          }
-                          navigate(`/test/${test._id}`);
-                        }}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 w-full sm:w-auto mt-2 sm:mt-0"
-                      >
-                        Start Test
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-4 mt-4 text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-5 w-5" />
-                        <span>{date}</span>
+            {message ? (
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <p className="text-gray-600 text-center text-lg">{message}</p>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {tests.map((test) => {
+                  const { date, time } = formatDateTime(test.scheduledOn);
+                  return (
+                    <div
+                      key={test._id}
+                      className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <h2 className="text-xl font-semibold text-gray-800 capitalize mb-2 sm:mb-0">
+                          {test.courseId.title}
+                        </h2>
+                        <button
+                          onClick={() => {
+                            if (test.hasChangeOfQuestion) {
+                              localStorage.setItem(
+                                "hasChangeOfQuestion",
+                                "true"
+                              );
+                            } else {
+                              localStorage.removeItem("hasChangeOfQuestion");
+                            }
+                            navigate(`/test/${test._id}`);
+                          }}
+                          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 w-full sm:w-auto mt-2 sm:mt-0"
+                        >
+                          Start Test
+                        </button>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-5 w-5" />
-                        <span>{time}</span>
+                      <div className="flex flex-wrap gap-4 mt-4 text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-5 w-5" />
+                          <span>{date}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-5 w-5" />
+                          <span>{time}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
