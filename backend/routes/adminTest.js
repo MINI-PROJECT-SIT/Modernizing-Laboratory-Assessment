@@ -1,14 +1,26 @@
 const express = require("express");
 const { Test, Result } = require("../db/index");
 const adminMiddleWare = require("../middlewares/admin");
+const { DateTime } = require("luxon");
 
 const router = express.Router();
 
 router.get("/tests", adminMiddleWare, async (req, res) => {
   try {
     const adminId = req.userId;
-    const tests = await Test.find({ createdBy: adminId })
+    const now = DateTime.now()
+      .setZone("Asia/Kolkata")
+      .minus({ hours: 2 })
+      .toISO();
+
+    const tests = await Test.find({
+      createdBy: adminId,
+      scheduledOn: {
+        $lt: now,
+      },
+    })
       .populate("courseId")
+      .sort({ scheduledOn: -1 })
       .exec();
 
     res.json(tests);

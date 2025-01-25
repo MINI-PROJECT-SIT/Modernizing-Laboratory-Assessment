@@ -103,8 +103,8 @@ router.post("/signup/verify", async (req, res) => {
     await OTP.deleteOne({ email: pendingAdmin.email });
     await PendingAdmin.deleteOne({ email: pendingAdmin.email });
 
-    const adminId = newAdmin._id;
-    const token = jwt.sign({ adminId }, JWT_SECRET);
+    const userId = newAdmin._id;
+    const token = jwt.sign({ userId }, JWT_SECRET);
 
     res.status(200).json({
       message: "Admin account created successfully",
