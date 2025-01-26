@@ -36,7 +36,7 @@ export function Results() {
   }, []);
 
   const TableHeading = ({ text }) => (
-    <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
+    <th className="px-6 py-3 text-center text-md font-semibold uppercase tracking-wider">
       {text}
     </th>
   );
@@ -65,7 +65,7 @@ export function Results() {
           ) : (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <table className="w-full">
-                <thead className="bg-green-500 text-white">
+                <thead className="bg-green-600 text-white border-b-2">
                   <tr>
                     <TableHeading text={"COURSE"} />
                     <TableHeading text={"DATE"} />

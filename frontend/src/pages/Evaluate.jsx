@@ -10,7 +10,7 @@ import { Footer } from "../components/Footer";
 export function Evaluate() {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isGeneratingCSV, setIsGeneratingCSV] = useState(false);
+  const [csvGenerationStatus, setCsvGenerationStatus] = useState({});
   const [csvError, setCsvError] = useState("");
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function Evaluate() {
   }, []);
 
   const handleGenerateCSV = async (testId) => {
-    setIsGeneratingCSV(true);
+    setCsvGenerationStatus((prev) => ({ ...prev, [testId]: true }));
     setCsvError("");
 
     try {
@@ -51,17 +51,17 @@ export function Evaluate() {
       console.error("Error downloading CSV:", error);
       setCsvError("Failed to generate CSV. Please try again.");
     } finally {
-      setIsGeneratingCSV(false);
+      setCsvGenerationStatus((prev) => ({ ...prev, [testId]: false }));
     }
   };
 
   const TableHeading = ({ text }) => (
-    <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
+    <th className="px-6 py-3 text-center text-md font-semibold uppercase tracking-wider">
       {text}
     </th>
   );
 
-  if (loading) return <ResultsSkeleton />;
+  if (loading) return <ResultsSkeleton userRole={"Teacher"} />;
 
   return (
     <div>
@@ -81,13 +81,13 @@ export function Evaluate() {
           {tests.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <p className="text-gray-600 text-center text-lg">
-                There are no tests Scheduled by you
+                There are no tests scheduled by you
               </p>
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <table className="w-full">
-                <thead className="bg-green-500 text-white">
+                <thead className="bg-green-600 text-white border-b-2">
                   <tr>
                     <TableHeading text={"COURSE"} />
                     <TableHeading text={"BRANCH"} />
@@ -112,10 +112,12 @@ export function Evaluate() {
                           <button
                             key={test._id}
                             onClick={() => handleGenerateCSV(test._id)}
-                            className="bg-white-500 text-green-600 py-1 px-3 rounded disabled:cursor-not-allowed"
-                            disabled={isGeneratingCSV}
+                            className="bg-white-500 text-green-600 py-1 px-3 rounded disabled:cursor-not-allowed hover:underline"
+                            disabled={csvGenerationStatus[test._id]}
                           >
-                            {isGeneratingCSV ? "Generating..." : "Generate CSV"}
+                            {csvGenerationStatus[test._id]
+                              ? "Generating..."
+                              : "Generate CSV"}
                           </button>
                         </td>
                       </tr>

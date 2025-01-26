@@ -1,14 +1,14 @@
 import { Header } from "../components/Header";
 
-export function ResultsSkeleton() {
+export function ResultsSkeleton({ userRole }) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header userRole={"Student"} />
+      <Header userRole={userRole} />
       <div className="container mx-auto px-4 py-8">
         <div className="h-10 w-64 bg-gray-200 rounded-md mb-8 mx-auto"></div>
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <table className="w-full">
-            <thead className="bg-green-500">
+            <thead className="bg-green-600">
               <tr>
                 {[
                   "Course",
@@ -18,7 +18,7 @@ export function ResultsSkeleton() {
                   "Total Score",
                 ].map((header) => (
                   <th key={header} className="px-6 py-3">
-                    <div className="h-4 bg-green-400 rounded-md w-3/4"></div>
+                    <div className="h-4 bg-green-300 rounded-md w-3/4"></div>
                   </th>
                 ))}
               </tr>
