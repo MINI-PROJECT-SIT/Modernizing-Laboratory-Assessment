@@ -24,7 +24,7 @@ const testMiddleWare = async (req, res, next) => {
     const result = await Result.findOne({ testId, studentId: userId });
 
     if (result && result.isFinished) {
-      return res.status(403).json({
+      return res.status(200).json({
         result,
         error:
           "You have already completed this test and cannot resubmit or rerun it.",

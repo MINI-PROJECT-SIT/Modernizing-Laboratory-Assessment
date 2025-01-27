@@ -42,6 +42,9 @@ export function CodeEditor() {
   if (isLoading || isFinding) {
     return <CodeEditorSkeleton />;
   }
+  if (status == "finished") {
+    navigate(`/result/${id}`);
+  }
   if (hasError || !question?.description || status === "expired" || error403) {
     return <ErrorHandler />;
   }

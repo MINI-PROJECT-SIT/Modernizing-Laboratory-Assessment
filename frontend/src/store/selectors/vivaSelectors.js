@@ -16,7 +16,7 @@ export const vivaQuestionsSelectorFamily = selectorFamily({
         }
       );
 
-      if (response.data.scheduledStart) {
+      if (response.data.scheduledStart || response.data.result) {
         return response.data;
       }
 
@@ -48,7 +48,7 @@ export const totalQuestionsSelector = selectorFamily({
     (testId) =>
     ({ get }) => {
       const questionsData = get(vivaQuestionsSelectorFamily(testId));
-      if (questionsData.scheduledStart) {
+      if (questionsData.scheduledStart || questionsData.result) {
         return questionsData;
       }
 

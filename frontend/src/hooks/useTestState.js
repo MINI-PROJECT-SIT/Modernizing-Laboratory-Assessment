@@ -35,54 +35,58 @@ export const useTestState = (id) => {
       try {
         if (questionDataLoadable.state === "hasValue") {
           const data = questionDataLoadable.contents;
-
-          setQuestionState((prevState) => {
-            if (!prevState.questionId) {
-              return {
-                questionId: data.questionId,
-                description: data.description,
-                sampleTestCase: data.sampleTestCase,
-              };
-            }
-            return prevState;
-          });
-
-          const scheduledStart = DateTime.fromISO(data.scheduledStart, {
-            zone: "Asia/Kolkata",
-          });
-          const scheduledEnd = scheduledStart.plus({ hours: 2 });
-          const now = DateTime.now().setZone("Asia/Kolkata");
-
-          if (now < scheduledStart) {
-            setStatus("scheduled");
-            setStatusMessage("Test is scheduled in the future.");
-
-            timerId = setInterval(() => {
-              const currentTime = DateTime.now().setZone("Asia/Kolkata");
-              const remainingTime = scheduledStart
-                .diff(currentTime, ["hours", "minutes", "seconds"])
-                .toObject();
-              remainingTime.seconds = Math.floor(remainingTime.seconds || 0);
-              setTimer(remainingTime);
-
-              if (currentTime >= scheduledStart) {
-                clearInterval(timerId);
-                setStatus("active");
-                setStatusMessage("Test is now ongoing.");
-                window.location.reload();
-                navigate(`/question/${id}`);
-              }
-            }, 1000);
-          } else if (now > scheduledEnd) {
-            setStatus("expired");
-            setStatusMessage(
-              "This test can only be run or submitted during its scheduled time."
-            );
-            setHasError(true);
+          if (data.result) {
+            setStatus("finished");
+            navigate(`/result/${id}`);
           } else {
-            setStatus("active");
-            setStatusMessage("Test is now ongoing.");
-            navigate(`/question/${id}`);
+            setQuestionState((prevState) => {
+              if (!prevState.questionId) {
+                return {
+                  questionId: data.questionId,
+                  description: data.description,
+                  sampleTestCase: data.sampleTestCase,
+                };
+              }
+              return prevState;
+            });
+
+            const scheduledStart = DateTime.fromISO(data.scheduledStart, {
+              zone: "Asia/Kolkata",
+            });
+            const scheduledEnd = scheduledStart.plus({ hours: 2 });
+            const now = DateTime.now().setZone("Asia/Kolkata");
+
+            if (now < scheduledStart) {
+              setStatus("scheduled");
+              setStatusMessage("Test is scheduled in the future.");
+
+              timerId = setInterval(() => {
+                const currentTime = DateTime.now().setZone("Asia/Kolkata");
+                const remainingTime = scheduledStart
+                  .diff(currentTime, ["hours", "minutes", "seconds"])
+                  .toObject();
+                remainingTime.seconds = Math.floor(remainingTime.seconds || 0);
+                setTimer(remainingTime);
+
+                if (currentTime >= scheduledStart) {
+                  clearInterval(timerId);
+                  setStatus("active");
+                  setStatusMessage("Test is now ongoing.");
+                  window.location.reload();
+                  navigate(`/question/${id}`);
+                }
+              }, 1000);
+            } else if (now > scheduledEnd) {
+              setStatus("expired");
+              setStatusMessage(
+                "This test can only be run or submitted during its scheduled time."
+              );
+              setHasError(true);
+            } else {
+              setStatus("active");
+              setStatusMessage("Test is now ongoing.");
+              navigate(`/question/${id}`);
+            }
           }
         } else if (questionDataLoadable.state === "hasError") {
           const error = questionDataLoadable.contents;

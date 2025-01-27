@@ -58,6 +58,11 @@ export function Viva() {
       totalQuestionsLoadable.contents.scheduledStart
     ) {
       navigate(`/test/${id}`);
+    } else if (
+      totalQuestionsLoadable.state === "hasValue" &&
+      totalQuestionsLoadable.contents.result
+    ) {
+      navigate(`/result/${id}`);
     }
   }, [
     totalQuestionsLoadable.state,
