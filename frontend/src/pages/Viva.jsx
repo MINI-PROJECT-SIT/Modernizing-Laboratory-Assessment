@@ -128,6 +128,7 @@ export function Viva() {
         <TestHeader
           toggleSidebar={toggleSidebar}
           isSidebarOpen={isSidebarOpen}
+          id={id}
         />
 
         <div className="min-h-screen bg-gray-50 flex justify-center items-center">

@@ -79,3 +79,8 @@ export const testResultAtom = atom({
   key: "testResultAtom",
   default: null,
 });
+
+export const timerAtom = atom({
+  key: "timerAtom",
+  default: null,
+});

@@ -4,7 +4,7 @@ import { testResultAtom } from "../store/atoms/atoms";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ErrorHandler } from "../components/ErrorHandler";
 import { TestResultSkeleton } from "../components/TestResultSkeleton";
 import { Footer } from "../components/Footer";
@@ -16,6 +16,7 @@ export function TestResult() {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const { id: testId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchResult = async () => {
@@ -60,7 +61,7 @@ export function TestResult() {
   }
 
   if (message) {
-    return <div>{message}</div>;
+    return navigate(`/test/${testId}`);
   }
 
   const codingScore = result?.codingScore || 0;

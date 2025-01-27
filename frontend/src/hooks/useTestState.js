@@ -7,6 +7,7 @@ import {
   errorAtom,
   questionAtomFamily,
 } from "../store/atoms/programQuestionAtoms";
+import { timerAtom } from "../store/atoms/atoms";
 
 export const useTestState = (id) => {
   const [status, setStatus] = useState("loading");
@@ -21,6 +22,7 @@ export const useTestState = (id) => {
   const questionDataLoadable = useRecoilValueLoadable(
     fetchQuestionSelector(id)
   );
+  const setTimerAtom = useSetRecoilState(timerAtom);
 
   useEffect(() => {
     let timerId;
@@ -83,6 +85,11 @@ export const useTestState = (id) => {
               );
               setHasError(true);
             } else {
+              const remainingTime = Math.max(
+                Math.floor(scheduledEnd.diff(now, "seconds").seconds),
+                0
+              );
+              setTimerAtom(remainingTime);
               setStatus("active");
               setStatusMessage("Test is now ongoing.");
               navigate(`/question/${id}`);
@@ -125,7 +132,14 @@ export const useTestState = (id) => {
         clearInterval(timerId);
       }
     };
-  }, [questionDataLoadable, setQuestionState, setError, id, navigate]);
+  }, [
+    questionDataLoadable,
+    setQuestionState,
+    setError,
+    id,
+    navigate,
+    setTimerAtom,
+  ]);
 
   return {
     status,

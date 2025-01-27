@@ -83,6 +83,7 @@ router.get(
         questionId: question._id,
         description: question.description,
         sampleTestCase: question.sampleTestCase,
+        scheduledStart: test.scheduledOn,
       });
     } catch (error) {
       console.error("Error fetching question:", error.message);

@@ -69,6 +69,7 @@ export function CodeEditor() {
         <TestHeader
           toggleSidebar={toggleSidebar}
           isSidebarOpen={isSidebarOpen}
+          id={id}
         />
         {isCheated ? (
           <CaughtCheating id={id} />
