@@ -23,6 +23,7 @@ export const handleSubmit = async ({
     setAllPassed,
     set403Error,
     setIsCheated,
+    setSubmitted,
   } = setters;
 
   setIsSubmitting(true);
@@ -50,6 +51,8 @@ export const handleSubmit = async ({
       return;
     }
 
+    setSubmitted(true);
+
     if (!response.data.allPassed) {
       for (var i = 0; i < response.data.results?.length; i++) {
         if (!response.data.results[i].Accepted) {
@@ -70,6 +73,7 @@ export const handleSubmit = async ({
     console.error("Error during code submission:", err.message);
     set403Error(true);
     setError(err.message);
+    setSubmitted(false);
   } finally {
     setIsSubmitting(false);
   }

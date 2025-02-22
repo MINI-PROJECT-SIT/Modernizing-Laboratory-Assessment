@@ -217,7 +217,7 @@ const ScheduleTest = () => {
                   }
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-transparent border-b"
                 >
-                  <option value="">Select your branch</option>
+                  <option value="">Select branch</option>
                   {BRANCHES.map((branch) => (
                     <option key={branch} value={branch}>
                       {branch}

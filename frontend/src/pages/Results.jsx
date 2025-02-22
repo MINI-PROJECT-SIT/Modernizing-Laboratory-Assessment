@@ -35,8 +35,10 @@ export function Results() {
     fetchResults();
   }, []);
 
-  const TableHeading = ({ text }) => (
-    <th className="px-6 py-3 text-center text-md font-semibold uppercase tracking-wider">
+  const TableHeading = ({ text, className = "" }) => (
+    <th
+      className={`px-6 py-3 text-center text-sm sm:text-md font-semibold uppercase tracking-wider ${className}`}
+    >
       {text}
     </th>
   );
@@ -54,7 +56,7 @@ export function Results() {
       <div className="min-h-screen bg-gray-50">
         <Header userRole={"Student"} />
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 text-center">
             Your Results
           </h2>
 
@@ -69,9 +71,15 @@ export function Results() {
                   <tr>
                     <TableHeading text={"COURSE"} />
                     <TableHeading text={"DATE"} />
-                    <TableHeading text={"Coding Score"} />
-                    <TableHeading text={"Viva Score"} />
-                    <TableHeading text={"Total Score"} />
+                    <TableHeading
+                      text={"Coding Score"}
+                      className="hidden sm:table-cell"
+                    />
+                    <TableHeading
+                      text={"Viva Score"}
+                      className="hidden sm:table-cell"
+                    />
+                    <TableHeading text={"Score"} />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -86,9 +94,14 @@ export function Results() {
                           }
                         />
                         <TableElement text={date} />
-
-                        <TableElement text={result.codingScore} />
-                        <TableElement text={result.vivaScore} />
+                        <TableElement
+                          text={result.codingScore}
+                          className="hidden sm:table-cell"
+                        />
+                        <TableElement
+                          text={result.vivaScore}
+                          className="hidden sm:table-cell"
+                        />
                         <TableElement
                           text={result.codingScore + result.vivaScore}
                         />

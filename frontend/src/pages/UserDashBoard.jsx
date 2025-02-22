@@ -6,8 +6,10 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const Card = ({ title, children }) => (
-  <div className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-    <h3 className="mb-4 text-xl font-semibold text-green-600">{title}</h3>
+  <div className="rounded-lg bg-white p-6 text-sm sm:text-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+    <h3 className="mb-4 text-lg sm:text-xl font-semibold text-green-600">
+      {title}
+    </h3>
     {children}
   </div>
 );
@@ -35,7 +37,7 @@ export function UserDashBoard() {
 
       <div className="flex min-h-screen justify-center items-center py-16">
         <main className="container mx-auto px-4 py-8">
-          <h1 className="mb-28 text-5xl text-center font-bold text-gray-800">
+          <h1 className="mb-28 text-xl sm:text-4xl md:text-5xl text-center font-bold text-gray-800">
             <ReactTyped
               strings={["Master Your Lab Assessments"]}
               typeSpeed={40}
@@ -93,7 +95,7 @@ export function UserDashBoard() {
             </Card>
           </div>
 
-          <div className="flex justify-center">
+          <div className="hidden lg:flex justify-center">
             <div className="m-8 w-1/2">
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">

@@ -53,13 +53,15 @@ export function Tests() {
         <Header userRole="Student" />
         <div className="p-4 sm:p-6">
           <div className="max-w-3xl mx-auto mt-10">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center sm:text-left">
               Upcoming Tests
             </h1>
 
             {message ? (
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                <p className="text-gray-600 text-center text-lg">{message}</p>
+                <p className="text-gray-600 text-center text-sm sm:text-lg">
+                  {message}
+                </p>
               </div>
             ) : (
               <div className="space-y-5">

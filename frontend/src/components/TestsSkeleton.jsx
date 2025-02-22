@@ -6,7 +6,9 @@ export function TestsSkeleton() {
       <Header userRole={"Student"} />
       <div className="p-4 sm:p-6">
         <div className="max-w-3xl mx-auto mt-10">
-          <div className="h-8 w-48 bg-gray-200 rounded-md animate-pulse mb-6"></div>
+          <div className="flex justify-center sm:block">
+            <div className="h-8 w-48 bg-gray-200 rounded-md animate-pulse mb-6"></div>
+          </div>
           <div className="space-y-5">
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">

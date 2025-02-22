@@ -39,7 +39,7 @@ export function Header({ userRole }) {
       <header className="bg-green-600 text-white shadow-lg fixed top-0 left-0 right-0 w-full z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center justify-center">
               <Link
                 to="/"
                 className="text-3xl font-extrabold hover:text-gray-200"

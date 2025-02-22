@@ -84,3 +84,8 @@ export const timerAtom = atom({
   key: "timerAtom",
   default: null,
 });
+
+export const submittedAtom = atom({
+  key: "submittedAtom",
+  default: false,
+});

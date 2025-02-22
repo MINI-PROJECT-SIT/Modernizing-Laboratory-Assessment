@@ -10,6 +10,7 @@ import {
   isSubmittingAtom,
   messageAtom,
   outputAtom,
+  submittedAtom,
   testInputAtom,
   viewAtom,
   yourOutputAtom,
@@ -61,6 +62,7 @@ export function ProgramEditor({ id }) {
   const setView = useSetRecoilState(viewAtom);
   const set403Error = useSetRecoilState(erro403Atom);
   const setIsCheated = useSetRecoilState(isCheatedAtom);
+  const setSubmitted = useSetRecoilState(submittedAtom);
 
   const setters = {
     setIsSubmitting,
@@ -75,6 +77,7 @@ export function ProgramEditor({ id }) {
     setIsRunning,
     set403Error,
     setIsCheated,
+    setSubmitted,
   };
 
   useEffect(() => {

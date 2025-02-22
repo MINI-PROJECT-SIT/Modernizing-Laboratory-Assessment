@@ -4,8 +4,10 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const Card = ({ title, children }) => (
-  <div className="rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-    <h3 className="mb-4 text-xl font-semibold text-green-600">{title}</h3>
+  <div className="rounded-lg bg-white p-6 text-sm sm:text-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+    <h3 className="mb-4 text-lg sm:text-xl font-semibold text-green-600">
+      {title}
+    </h3>
     {children}
   </div>
 );
@@ -24,7 +26,7 @@ export function AdminDashBoard() {
 
       <div className="flex min-h-screen justify-center items-center py-16">
         <main className="container mx-auto px-4 py-8">
-          <h1 className="mb-28 text-5xl text-center font-bold text-gray-800">
+          <h1 className="mb-28 text-xl sm:text-4xl md:text-5xl text-center font-bold text-gray-800">
             <ReactTyped
               strings={["Streamline Your Lab Assessments"]}
               typeSpeed={40}

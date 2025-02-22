@@ -32,17 +32,17 @@ export function Test() {
     <div>
       <div className="min-h-screen bg-gray-50">
         <Header userRole="Student" />
-        <div className="flex justify-center items-center h-screen">
-          <main className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-green-700 mb-6 text-center">
+        <div className="flex justify-center items-center min-h-screen mt-20">
+          <main className="container mx-auto px-4 py-8 min-h-screen">
+            <h1 className="text-3xl sm:text-4xl font-bold text-green-700 mb-6 text-center">
               Lab Test
             </h1>
-            <p className="text-2xl font-semibold text-green-600 mb-8 text-center">
+            <p className="text-xl sm:text-2xl font-semibold text-green-600 mb-8 text-center">
               {statusMessage}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
-              <div className="col-span-5 bg-white p-6 rounded-lg shadow-md flex justify-center">
+            <div className="flex flex-col sm:grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+              <div className="col-span-5 bg-white p-6 rounded-lg shadow-md flex justify-center my-8 sm:my-0">
                 {timer && status === "scheduled" && (
                   <div className="flex flex-col items-center justify-center">
                     <TickingClock />
@@ -68,11 +68,11 @@ export function Test() {
               </div>
 
               <div className="col-span-6 bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                <h2 className="text-xl sm:text-2xl font-semibold text-green-700 mb-4 flex items-center">
                   <Info className="w-6 h-6 mr-2" />
                   Test Information
                 </h2>
-                <ul className="space-y-3 text-gray-700">
+                <ul className="space-y-3 text-gray-700 text-sm sm:text-lg">
                   <li className="flex items-center">
                     <Clock className="w-5 h-5 text-green-600 mr-2 flex-shrink-0" />
                     <span>Duration: 2 hours</span>
@@ -100,7 +100,7 @@ export function Test() {
               </div>
             </div>
 
-            <div className="bg-orange-50 border-l-4 border-orange-400 p-6 rounded-lg shadow-md">
+            <div className="bg-orange-50 border-l-4 border-orange-400 p-6 rounded-lg shadow-md my-10 sm:my-0">
               <div className="flex items-start">
                 <AlertCircle className="w-6 h-6 text-orange-500 mr-3 flex-shrink-0 mt-1" />
                 <div>
