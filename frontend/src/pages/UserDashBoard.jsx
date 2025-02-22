@@ -94,37 +94,6 @@ export function UserDashBoard() {
               </ol>
             </Card>
           </div>
-
-          <div className="hidden lg:flex justify-center">
-            <div className="m-8 w-1/2">
-              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow duration-200">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="text-xl font-semibold text-gray-800 capitalize mb-2 sm:mb-0">
-                    Take a practice assessment:
-                  </h2>
-                  <button
-                    onClick={() => {
-                      navigate("/demotest");
-                    }}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 w-full sm:w-auto mt-2 sm:mt-0"
-                  >
-                    Begin Practice
-                  </button>
-                </div>
-
-                <div className="flex flex-wrap gap-4 mt-4 text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-5 w-5" />
-                    <span>{new Date().toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-5 w-5" />
-                    <span>{formatTime(new Date())}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </main>
       </div>
 
