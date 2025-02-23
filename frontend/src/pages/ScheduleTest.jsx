@@ -193,7 +193,7 @@ const ScheduleTest = () => {
                   <option value="">Select a course</option>
                   {courses.map((course) => (
                     <option key={course._id} value={course._id}>
-                      {course.title}
+                      {course.title.toUpperCase()}
                     </option>
                   ))}
                   <option value="newCourse">
